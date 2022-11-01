@@ -1,7 +1,7 @@
 
 /* Game.java
  * Space Invaders Main Program
- *
+ TESTING EDITING
  */
 
 import javax.swing.*;
