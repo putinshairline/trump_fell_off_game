@@ -1,7 +1,7 @@
 
 /* Game.java
  * Space Invaders Main Program
- TESTING EDITING
+ *
  */
 
 import javax.swing.*;
@@ -17,10 +17,8 @@ public class Game extends Canvas {
 	// a key is pressed
 	private boolean leftPressed = false; // true if left arrow key currently pressed
 	private boolean rightPressed = false; // true if right arrow key currently pressed
-	private boolean firePressed = false; // true if firing
 	private boolean upPressed = false; // true if up arrow key is pressed
-
-	private boolean jump = false; // the special
+	private boolean downPressed = false; // true if down arrow key is pressed
 
 	private boolean gameRunning = true;
 	private ArrayList entities = new ArrayList(); // list of entities
@@ -29,16 +27,7 @@ public class Game extends Canvas {
 														// to remove this loop
 	private Entity ship; // the ship
 	private double moveSpeed = 600; // hor. vel. of ship (px/s)
-	private long lastFire = 0; // time last shot fired
-	private long firingInterval = 300; // interval between shots (ms)
-	private int alienCount; // # of aliens left on screen
-
 	private String message = ""; // message to display while waiting
-									// for a key press
-
-	private boolean logicRequiredThisLoop = false; // true if logic
-													// needs to be
-													// applied this loop
 
 	/*
 	 * Construct our game and set it running.
@@ -51,11 +40,11 @@ public class Game extends Canvas {
 		JPanel panel = (JPanel) container.getContentPane();
 
 		// set up the resolution of the game
-		panel.setPreferredSize(new Dimension(1000, 1000));
+		panel.setPreferredSize(new Dimension(600, 1080));
 		panel.setLayout(null);
 
 		// set up canvas size (this) and add to frame
-		setBounds(0, 0, 1000, 1000);
+		setBounds(0, 0, 600, 1000);
 		panel.add(this);
 
 		// Tell AWT not to bother repainting canvas since that will
@@ -97,29 +86,14 @@ public class Game extends Canvas {
 	 * entities in the game.
 	 */
 	private void initEntities() {
-		// create the ship and put in center of screen
-		ship = new ShipEntity(this, "sprites/ship.gif", 0, 950);
-		entities.add(ship);
-
-		// create a block of aliens (5x12)
-		alienCount = 0;
-		for (int row = 0; row < 7; row++) {
-			for (int col = 0; col < 12; col++) {
-				Entity alien = new AlienEntity(this, "sprites/alien.gif", 100 + (col * 40), 50 + (row * 30));
-				entities.add(alien);
-				alienCount++;
-			} // for
-		} // outer for
+		
 	} // initEntities
 
 	/*
 	 * Notification from a game entity that the logic of the game should be run at
 	 * the next opportunity
 	 */
-	public void updateLogic() {
-		logicRequiredThisLoop = true;
-	} // updateLogic
-
+	
 	/*
 	 * Remove an entity from the game. It will no longer be moved or drawn.
 	 */
@@ -138,43 +112,6 @@ public class Game extends Canvas {
 	/*
 	 * Notification that the play has killed all aliens
 	 */
-	public void notifyWin() {
-		message = "W";
-		waitingForKeyPress = true;
-	} // notifyWin
-
-	/*
-	 * Notification than an alien has been killed
-	 */
-	public void notifyAlienKilled() {
-		alienCount--;
-
-		if (alienCount == 0) {
-			notifyWin();
-		} // if
-
-		// speed up existing aliens
-		for (int i = 0; i < entities.size(); i++) {
-			Entity entity = (Entity) entities.get(i);
-			if (entity instanceof AlienEntity) {
-				// speed up by 2%
-				entity.setHorizontalMovement(entity.getHorizontalMovement() * 1.04);
-			} // if
-		} // for
-	} // notifyAlienKilled
-
-	/* Attempt to fire. */
-	public void tryToFire() {
-		// check that we've waited long enough to fire
-		if ((System.currentTimeMillis() - lastFire) < firingInterval) {
-			return;
-		} // if
-
-		// otherwise add a shot
-		lastFire = System.currentTimeMillis();
-		ShotEntity shot = new ShotEntity(this, "sprites/shot.gif", ship.getX() + 10, ship.getY() - 30);
-		entities.add(shot);
-	} // tryToFire
 
 	/*
 	 * gameLoop input: none output: none purpose: Main game loop. Runs throughout
@@ -197,7 +134,7 @@ public class Game extends Canvas {
             // get graphics context for the accelerated surface and make it black
             Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
             g.setColor(Color.black);
-            g.fillRect(0,0,1000,1000);
+            g.fillRect(0,0,600,1000);
 
             // move each entity
             if (!waitingForKeyPress) {
@@ -213,39 +150,11 @@ public class Game extends Canvas {
                entity.draw(g);
             } // for
 
-            // brute force collisions, compare every entity
-            // against every other entity.  If any collisions
-            // are detected notify both entities that it has
-            // occurred
-           for (int i = 0; i < entities.size(); i++) {
-             for (int j = i + 1; j < entities.size(); j++) {
-                Entity me = (Entity)entities.get(i);
-                Entity him = (Entity)entities.get(j);
-
-                if (me.collidesWith(him)) {
-                  me.collidedWith(him);
-                  him.collidedWith(me);
-                } // if
-             } // inner for
-           } // outer for
-
-           // remove dead entities
-           entities.removeAll(removeEntities);
-           removeEntities.clear();
-
-           // run logic if required
-           if (logicRequiredThisLoop) {
-             for (int i = 0; i < entities.size(); i++) {
-               Entity entity = (Entity) entities.get(i);
-               entity.doLogic();
-             } // for
-             logicRequiredThisLoop = false;
-           } // if
 
            // if waiting for "any key press", draw message
            if (waitingForKeyPress) {
              g.setColor(Color.white);
-             g.drawString(message, (1000 - g.getFontMetrics().stringWidth(message))/2, 250);
+             g.drawString(message, (600 - g.getFontMetrics().stringWidth(message))/2, 250);
              g.drawString("Press any key", (1000 - g.getFontMetrics().stringWidth("Press any key"))/2, 300);
            }  // if
 
@@ -257,32 +166,21 @@ public class Game extends Canvas {
             ship.setHorizontalMovement(0);
             ship.setVerticalMovement(0);
 
-            // respond to user moving ship
+            // respond to user moving player
             if ((leftPressed) && (!rightPressed)) {
               ship.setHorizontalMovement(-moveSpeed);
             } else if ((rightPressed) && (!leftPressed)) {
               ship.setHorizontalMovement(moveSpeed);
             } // else
 
-            // if spacebar pressed, try to fire
-            if (firePressed) {
-              tryToFire();
-            } // if
 
             // if the up key is pressed, try to jump
 			if (upPressed) {
-				// tryToJump();
-				if (jump) {
-					ship.setY(ship.getY() - 50);
-					jump = false;
-				} // if
-			} else {
-				ship.setVerticalMovement(200);
-				if (ship.y >= 970) {
-					ship.setVerticalMovement(0);
-					jump = true;
-				} // if
+				//slowfall
 			} // else
+			if(downPressed) {
+				//dive
+			}
 
             // pause
             //try { Thread.sleep(100); } catch (Exception e) {}
@@ -304,7 +202,7 @@ public class Game extends Canvas {
 		// blank out any keyboard settings that might exist
 		leftPressed = false;
 		rightPressed = false;
-		firePressed = false;
+		downPressed = false;
 		upPressed = false;
 
 	} // startGame
@@ -338,7 +236,7 @@ public class Game extends Canvas {
 			} // if
 
 			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-				firePressed = true;
+				downPressed = true;
 			} // if
 
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
@@ -362,7 +260,7 @@ public class Game extends Canvas {
 			} // if
 
 			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-				firePressed = false;
+				downPressed = false;
 			} // if
 
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
