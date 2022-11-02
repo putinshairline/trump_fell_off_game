@@ -140,11 +140,12 @@ public class Game extends Canvas {
 			
 			// get graphics context for the accelerated surface and make it black
             Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-           
+            
             //scrolling Background
-            if (back == null)
+            if (back == null) {
                 back = (BufferedImage)(createImage(getWidth(), getHeight()));
-
+            }
+            
             //creates a buffer to draw to
             Graphics buffer = back.createGraphics();
 
@@ -155,42 +156,13 @@ public class Game extends Canvas {
             //draws the image onto the window
             g.drawImage(back, null, 0, 0);
 			
-			// move each entity
-			if (!waitingForKeyPress) {
-				for (int i = 0; i < entities.size(); i++) {
-					Entity entity = (Entity) entities.get(i);
-					entity.move(delta);
-				} // for
-			} // if
-
-			// draw all entities
-			for (int i = 0; i < entities.size(); i++) {
-				Entity entity = (Entity) entities.get(i);
-				entity.draw(g);
-			} // for
-
-			// if waiting for "any key press", draw message
-			if (waitingForKeyPress) {
-				g.setColor(Color.white);
-				g.drawString(message, (600 - g.getFontMetrics().stringWidth(message)) / 2, 250);
-				g.drawString("Press any key", (1000 - g.getFontMetrics().stringWidth("Press any key")) / 2, 300);
-			} // if
 
 			// clear graphics and flip buffer
 			g.dispose();
 			strategy.show();
 
-			// ship should not move without user input
-			ship.setHorizontalMovement(0);
-			ship.setVerticalMovement(0);
 
-			// respond to user moving player
-			if ((leftPressed) && (!rightPressed)) {
-				ship.setHorizontalMovement(-moveSpeed);
-			} else if ((rightPressed) && (!leftPressed)) {
-				ship.setHorizontalMovement(moveSpeed);
-			} // else
-
+			/*
 			// if the up key is pressed, try to jump
 			if (upPressed) {
 				// slowfall
@@ -198,7 +170,7 @@ public class Game extends Canvas {
 			if (downPressed) {
 				// dive
 			}
-
+			*/
 			// pause
 			// try { Thread.sleep(100); } catch (Exception e) {}
 
