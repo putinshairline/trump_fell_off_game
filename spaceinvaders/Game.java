@@ -88,14 +88,14 @@ public class Game extends Canvas {
 	 * entities in the game.
 	 */
 	private void initEntities() {
-		
+
 	} // initEntities
 
 	/*
 	 * Notification from a game entity that the logic of the game should be run at
 	 * the next opportunity
 	 */
-	
+
 	/*
 	 * Remove an entity from the game. It will no longer be moved or drawn.
 	 */
@@ -123,90 +123,89 @@ public class Game extends Canvas {
 	 */
 
 	public void gameLoop() {
-          long lastLoopTime = System.currentTimeMillis();
-	
-	  /*
-	  //Scrolling Background
-	  BufferedImage back = null; // background image
-	  Background backOne = new Background(); // first copy of background image (used for moving background)
-	  Background backTwo = new Background(backOne.getImageWidth(), 0); // second copy of background image (used for moving background)
-	  */
+		long lastLoopTime = System.currentTimeMillis();
 
-          // keep loop running until game ends
-          while (gameRunning) {
+		/*
+		 * //Scrolling Background BufferedImage back = null; // background image
+		 * Background backOne = new Background(); // first copy of background image
+		 * (used for moving background) Background backTwo = new
+		 * Background(backOne.getImageWidth(), 0); // second copy of background image
+		 * (used for moving background)
+		 */
 
-            // calc. time since last update, will be used to calculate
-            // entities movement
-            long delta = System.currentTimeMillis() - lastLoopTime;
-            lastLoopTime = System.currentTimeMillis();
-	    /* ATTEMPT TO MAKE INFINITE BACKGROUND IDK IF THIS IS HOW I SHOULD IMPLEMENT IT
-	    // get graphics context for the accelerated surface and make it black
-	    Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+		// keep loop running until game ends
+		while (gameRunning) {
 
-	    // scrolling Background
-	    if (back == null)
-		    back = (BufferedImage) (createImage(getWidth(), getHeight()));
+			// calc. time since last update, will be used to calculate
+			// entities movement
+			long delta = System.currentTimeMillis() - lastLoopTime;
+			lastLoopTime = System.currentTimeMillis();
+			// get graphics context for the accelerated surface and make it black
+			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+			
+			/*
+			 * ATTEMPT TO MAKE INFINITE BACKGROUND IDK IF THIS IS HOW I SHOULD IMPLEMENT IT
+			 * 
+			 * 
+			 * // scrolling Background if (back == null) back = (BufferedImage)
+			 * (createImage(getWidth(), getHeight()));
+			 * 
+			 * // creates a buffer to draw to Graphics buffer = back.createGraphics();
+			 * 
+			 * // puts the two copies of the background image onto the buffer
+			 * backOne.draw(buffer); backTwo.draw(buffer);
+			 * 
+			 * // draws the image onto the window g.drawImage(back, null, 0, 0);
+			 */
+			
+			// move each entity
+			if (!waitingForKeyPress) {
+				for (int i = 0; i < entities.size(); i++) {
+					Entity entity = (Entity) entities.get(i);
+					entity.move(delta);
+				} // for
+			} // if
 
-	    // creates a buffer to draw to
-	    Graphics buffer = back.createGraphics();
+			// draw all entities
+			for (int i = 0; i < entities.size(); i++) {
+				Entity entity = (Entity) entities.get(i);
+				entity.draw(g);
+			} // for
 
-	    // puts the two copies of the background image onto the buffer
-	    backOne.draw(buffer);
-	    backTwo.draw(buffer);
+			// if waiting for "any key press", draw message
+			if (waitingForKeyPress) {
+				g.setColor(Color.white);
+				g.drawString(message, (600 - g.getFontMetrics().stringWidth(message)) / 2, 250);
+				g.drawString("Press any key", (1000 - g.getFontMetrics().stringWidth("Press any key")) / 2, 300);
+			} // if
 
-	    // draws the image onto the window
-	    g.drawImage(back, null, 0, 0);
-	    */
-            // move each entity
-            if (!waitingForKeyPress) {
-              for (int i = 0; i < entities.size(); i++) {
-                Entity entity = (Entity) entities.get(i);
-                entity.move(delta);
-              } // for
-            } // if
+			// clear graphics and flip buffer
+			g.dispose();
+			strategy.show();
 
-            // draw all entities
-            for (int i = 0; i < entities.size(); i++) {
-               Entity entity = (Entity) entities.get(i);
-               entity.draw(g);
-            } // for
-		
+			// ship should not move without user input
+			ship.setHorizontalMovement(0);
+			ship.setVerticalMovement(0);
 
-           // if waiting for "any key press", draw message
-           if (waitingForKeyPress) {
-             g.setColor(Color.white);
-             g.drawString(message, (600 - g.getFontMetrics().stringWidth(message))/2, 250);
-             g.drawString("Press any key", (1000 - g.getFontMetrics().stringWidth("Press any key"))/2, 300);
-           }  // if
-
-            // clear graphics and flip buffer
-            g.dispose();
-            strategy.show();
-
-            // ship should not move without user input
-            ship.setHorizontalMovement(0);
-            ship.setVerticalMovement(0);
-
-            // respond to user moving player
-            if ((leftPressed) && (!rightPressed)) {
-              ship.setHorizontalMovement(-moveSpeed);
-            } else if ((rightPressed) && (!leftPressed)) {
-              ship.setHorizontalMovement(moveSpeed);
-            } // else
-
-
-            // if the up key is pressed, try to jump
-			if (upPressed) {
-				//slowfall
+			// respond to user moving player
+			if ((leftPressed) && (!rightPressed)) {
+				ship.setHorizontalMovement(-moveSpeed);
+			} else if ((rightPressed) && (!leftPressed)) {
+				ship.setHorizontalMovement(moveSpeed);
 			} // else
-			if(downPressed) {
-				//dive
+
+			// if the up key is pressed, try to jump
+			if (upPressed) {
+				// slowfall
+			} // else
+			if (downPressed) {
+				// dive
 			}
 
-            // pause
-            //try { Thread.sleep(100); } catch (Exception e) {}
+			// pause
+			// try { Thread.sleep(100); } catch (Exception e) {}
 
-          } // while
+		} // while
 
 	} // gameLoop
 
