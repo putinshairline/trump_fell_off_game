@@ -50,8 +50,7 @@ public class Background {
  
         //check to see if the image has gone off stage left
         if (this.x <= -1 * 1920) {
- 
-            //if it has, line it back up so that its left edge is lined up to the right side of the other background image
+ 			//if it has, line it back up so that its left edge is lined up to the right side of the other background image
             this.x = this.x + 1920 * 2;
         }//if
  		*/
