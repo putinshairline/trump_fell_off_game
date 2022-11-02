@@ -125,13 +125,10 @@ public class Game extends Canvas {
 	public void gameLoop() {
 		long lastLoopTime = System.currentTimeMillis();
 
-		/*
-		 * //Scrolling Background BufferedImage back = null; // background image
-		 * Background backOne = new Background(); // first copy of background image
-		 * (used for moving background) Background backTwo = new
-		 * Background(backOne.getImageWidth(), 0); // second copy of background image
-		 * (used for moving background)
-		 */
+		// Scrolling Background
+        BufferedImage back = null; //background image
+        Background backOne = new Background(); //first copy of background image (used for moving background)
+        Background backTwo = new Background(backOne.getImageWidth(), 0); //second copy of background image (used for moving background)
 
 		// keep loop running until game ends
 		while (gameRunning) {
@@ -140,23 +137,23 @@ public class Game extends Canvas {
 			// entities movement
 			long delta = System.currentTimeMillis() - lastLoopTime;
 			lastLoopTime = System.currentTimeMillis();
-			// get graphics context for the accelerated surface and make it black
-			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 			
-			/*
-			 * ATTEMPT TO MAKE INFINITE BACKGROUND IDK IF THIS IS HOW I SHOULD IMPLEMENT IT
-			 * 
-			 * 
-			 * // scrolling Background if (back == null) back = (BufferedImage)
-			 * (createImage(getWidth(), getHeight()));
-			 * 
-			 * // creates a buffer to draw to Graphics buffer = back.createGraphics();
-			 * 
-			 * // puts the two copies of the background image onto the buffer
-			 * backOne.draw(buffer); backTwo.draw(buffer);
-			 * 
-			 * // draws the image onto the window g.drawImage(back, null, 0, 0);
-			 */
+			// get graphics context for the accelerated surface and make it black
+            Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+           
+            //scrolling Background
+            if (back == null)
+                back = (BufferedImage)(createImage(getWidth(), getHeight()));
+
+            //creates a buffer to draw to
+            Graphics buffer = back.createGraphics();
+
+            //puts the two copies of the background image onto the buffer
+            backOne.draw(buffer);
+            backTwo.draw(buffer);
+
+            //draws the image onto the window
+            g.drawImage(back, null, 0, 0);
 			
 			// move each entity
 			if (!waitingForKeyPress) {
