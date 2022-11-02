@@ -124,6 +124,13 @@ public class Game extends Canvas {
 
 	public void gameLoop() {
           long lastLoopTime = System.currentTimeMillis();
+	
+	  /*
+	  //Scrolling Background
+	  BufferedImage back = null; // background image
+	  Background backOne = new Background(); // first copy of background image (used for moving background)
+	  Background backTwo = new Background(backOne.getImageWidth(), 0); // second copy of background image (used for moving background)
+	  */
 
           // keep loop running until game ends
           while (gameRunning) {
