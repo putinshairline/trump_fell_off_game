@@ -19,6 +19,8 @@ public class Game extends Canvas {
 	private boolean rightPressed = false; // true if right arrow key currently pressed
 	private boolean upPressed = false; // true if up arrow key is pressed
 	private boolean downPressed = false; // true if down arrow key is pressed
+	private final int GAME_WIDTH = 600; // width of game
+	private final int GAME_HEIGHT = 1080; // height of game
 
 	private boolean gameRunning = true;
 	private ArrayList entities = new ArrayList(); // list of entities
@@ -130,12 +132,24 @@ public class Game extends Canvas {
             // entities movement
             long delta = System.currentTimeMillis() - lastLoopTime;
             lastLoopTime = System.currentTimeMillis();
+	    /* ATTEMPT TO MAKE INFINITE BACKGROUND IDK IF THIS IS HOW I SHOULD IMPLEMENT IT
+	    // get graphics context for the accelerated surface and make it black
+	    Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 
-            // get graphics context for the accelerated surface and make it black
-            Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-            g.setColor(Color.black);
-            g.fillRect(0,0,600,1000);
+	    // scrolling Background
+	    if (back == null)
+		    back = (BufferedImage) (createImage(getWidth(), getHeight()));
 
+	    // creates a buffer to draw to
+	    Graphics buffer = back.createGraphics();
+
+	    // puts the two copies of the background image onto the buffer
+	    backOne.draw(buffer);
+	    backTwo.draw(buffer);
+
+	    // draws the image onto the window
+	    g.drawImage(back, null, 0, 0);
+	    */
             // move each entity
             if (!waitingForKeyPress) {
               for (int i = 0; i < entities.size(); i++) {
@@ -149,7 +163,7 @@ public class Game extends Canvas {
                Entity entity = (Entity) entities.get(i);
                entity.draw(g);
             } // for
-
+		
 
            // if waiting for "any key press", draw message
            if (waitingForKeyPress) {
