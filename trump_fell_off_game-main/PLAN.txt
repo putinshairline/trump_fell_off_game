@@ -1,0 +1,19 @@
+Group Members: Chris, Sergiy
+Game title: Trump Fell Off
+Game description: skydiving game with funny rump reference
+Hardest Functionality: power-ups
+
+Game plan:
+- trump fell out of airplane
+- objective is to make to collect the most point (points are earned by falling the longest) Poins are == meters/feet
+- obstacles are birds, other planes, cloud slow you down
+- left right = ive second sprint (divebomb type) ability
+- maybe collect abilities??
+- each time you hit an obstacle youi lose control for x amoun of time, AND get a health decrease
+- each time you hit a cloud, your speed is decreased
+- 30 second time 
+- powerups store accessed each time you die (jetpack, protection field, helmet etc.)
+- use .txt for saving progress
+/++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++/

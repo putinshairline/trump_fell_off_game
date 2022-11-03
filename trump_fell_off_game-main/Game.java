@@ -11,7 +11,7 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.util.ArrayList;
 
-public class Game extends Canvas {
+public class Game extends Canvas{
 
 	private BufferStrategy strategy; // take advantage of accelerated graphics
 	private boolean waitingForKeyPress = true; // true if game held up until
@@ -22,13 +22,16 @@ public class Game extends Canvas {
 	private boolean downPressed = false; // true if down arrow key is pressed
 	private final int GAME_WIDTH = 600; // width of game
 	private final int GAME_HEIGHT = 1080; // height of game
-
+	private int xPos; // x position for enemy entities
+	private int yPos; // x position for enemy entities
+	private int lastBird = 0; // time since last bird spawn in millis
 	private boolean gameRunning = true;
-	private ArrayList entities = new ArrayList(); // list of entities
+	private ArrayList<Entity> entities = new ArrayList<>(); // list of entities
 													// in game
-	private ArrayList removeEntities = new ArrayList(); // list of entities
+	private ArrayList<Entity> removeEntities = new ArrayList<>(); // list of entities
 														// to remove this loop
 	private Entity player; // the player
+	private Entity bird; // the birds the player will dodge
 	private double moveSpeed = 600; // hor. vel. of ship (px/s)
 	private String message = ""; // message to display while waiting
 
@@ -47,7 +50,7 @@ public class Game extends Canvas {
 		panel.setLayout(null);
 
 		// set up canvas size (this) and add to frame
-		setBounds(0, 0, 600, 1000);
+		setBounds(0, 0, 600, 1080);
 		panel.add(this);
 
 		// Tell AWT not to bother repainting canvas since that will
@@ -89,9 +92,10 @@ public class Game extends Canvas {
 	 * entities in the game.
 	 */
 	private void initEntities() {
+		
 		player  = new Player(this, "sprites/player.gif", 0, 0, 40, 40);
 		entities.add(player);
-		
+	
 	} // initEntities
 
 	/*
@@ -136,10 +140,11 @@ public class Game extends Canvas {
 
 		// keep loop running until game ends
 		while (gameRunning) {
-
+			
 			// calc. time since last update, will be used to calculate
 			// entities movement
 			long delta = System.currentTimeMillis() - lastLoopTime;
+			lastBird += delta;
 			lastLoopTime = System.currentTimeMillis();
 
 			// get graphics context for the accelerated surface and make it black
@@ -159,14 +164,33 @@ public class Game extends Canvas {
 
 			// draws the image onto the window
 			g.drawImage(back, null, 0, 0);
-
+			
+			
 			// move each entity
 			if (!waitingForKeyPress) {
+				// if enough time has passed to spawn new birds
+				if(lastBird > 2000) {
+					lastBird = 0; // reset counter
+					
+					//spawn 3 bird entities if enough time has passed
+					for(int i = 0; i < 4; i++) {
+						xPos = (int)(Math.random() * 550) + 1; // x position for enemy entities
+						yPos = (int)(Math.random() * 1150) + 970; // x position for enemy entities
+						Entity bird = new BirdEntity(this, "sprites/alien.gif", xPos, yPos, 25, 31);
+						entities.add(bird);
+					}// for 
+					
+				} //if
+				
 				for (int i = 0; i < entities.size(); i++) {
 					Entity entity = (Entity) entities.get(i);
+					if(entity instanceof BirdEntity) {
+						entity.setVerticalMovement(-400);
+					}
 					entity.move(delta);
 				} // for
-			} // if
+				
+			} // if move
 
 			// draw all entities
 			for (int i = 0; i < entities.size(); i++) {
@@ -186,6 +210,7 @@ public class Game extends Canvas {
 			strategy.show();
 			
 			player.setHorizontalMovement(0);
+			
 			// respond to user moving ship
 			if ((leftPressed) && (!rightPressed)) {
 				player.setHorizontalMovement(-moveSpeed);
