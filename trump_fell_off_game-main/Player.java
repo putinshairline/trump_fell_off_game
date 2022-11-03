@@ -5,7 +5,7 @@ public class Player extends Entity{
 	private Game game;
 	
 	
-	public Player(Game g, String r, int newX, int newY, int newH, int newW) {
+	public Player(Game g, String r, int newX, int newY, int newH , int newW) {
 		super(r, newX, newY, newH, newW);
 		game = g;
 	}
@@ -18,19 +18,14 @@ public class Player extends Entity{
 	
 	public void move(long delta) {
 		// stop at left side of screenF
-		if ((dx < 0) && (x < 0)) {
+		if ((dx < 0) && (x < -10)) {
 			return;
 		} // if
 			// stop at right side of screen
-		if ((dx > 0) && (x > 600)) {
+		if ((dx > 0) && (x > 550)) {
 			return;
 		} // if
-		if ((dy > 0) && (y < 1080)) {
-			dy += 1;
-		}
-		if ((dy > 0) && (y > 0)) {
-			return;
-		}
+		
 
 		super.move(delta); // calls the move method in Entity
 	} // move

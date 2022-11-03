@@ -89,8 +89,8 @@ public class Game extends Canvas {
 	 * entities in the game.
 	 */
 	private void initEntities() {
-		Player p = new Player(this, "sprites/player.gif", 0, 0, 40, 40);
-		entities.add(p);
+		player  = new Player(this, "sprites/player.gif", 0, 0, 40, 40);
+		entities.add(player);
 		
 	} // initEntities
 
@@ -129,9 +129,10 @@ public class Game extends Canvas {
 		long lastLoopTime = System.currentTimeMillis();
 
 		// Scrolling Background
-        BufferedImage back = null; //background image
-        Background backOne = new Background(); //first copy of background image (used for moving background)
-        Background backTwo = new Background(backOne.getImageWidth(), 0); //second copy of background image (used for moving background)
+		BufferedImage back = null; // background image
+		Background backOne = new Background(); // first copy of background image (used for moving background)
+		Background backTwo = new Background(backOne.getImageWidth(), 0); // second copy of background image (used for
+																			// moving background)
 
 		// keep loop running until game ends
 		while (gameRunning) {
@@ -140,59 +141,58 @@ public class Game extends Canvas {
 			// entities movement
 			long delta = System.currentTimeMillis() - lastLoopTime;
 			lastLoopTime = System.currentTimeMillis();
-			
+
 			// get graphics context for the accelerated surface and make it black
-            Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-            
-            //scrolling Background
-            if (back == null) {
-                back = (BufferedImage)(createImage(getWidth(), getHeight()));
-            }
-            
-            //creates a buffer to draw to
-            Graphics buffer = back.createGraphics();
+			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 
-            //puts the two copies of the background image onto the buffer
-            backOne.draw(buffer);
-            backTwo.draw(buffer);
+			// scrolling Background
+			if (back == null) {
+				back = (BufferedImage) (createImage(getWidth(), getHeight()));
+			}
 
-            //draws the image onto the window
-            g.drawImage(back, null, 0, 0);
-            
-            // move each entity
-            if (!waitingForKeyPress) {
-              for (int i = 0; i < entities.size(); i++) {
-                Entity entity = (Entity) entities.get(i);
-                entity.move(delta);
-              } // for
-            } // if
-            
-            // draw all entities
-            for (int i = 0; i < entities.size(); i++) {
-               Entity entity = (Entity) entities.get(i);
-               entity.draw(g);
-            } // for
-            
-            // if waiting for "any key press", draw message
-            if (waitingForKeyPress) {
-              g.setColor(Color.white);
-              g.drawString(message, (1080 - g.getFontMetrics().stringWidth(message))/2, 250);
-              g.drawString("Press any key", (600 - g.getFontMetrics().stringWidth("Press any key"))/2, 300);
-            }  // if
-            
+			// creates a buffer to draw to
+			Graphics buffer = back.createGraphics();
+
+			// puts the two copies of the background image onto the buffer
+			backOne.draw(buffer);
+			backTwo.draw(buffer);
+
+			// draws the image onto the window
+			g.drawImage(back, null, 0, 0);
+
+			// move each entity
+			if (!waitingForKeyPress) {
+				for (int i = 0; i < entities.size(); i++) {
+					Entity entity = (Entity) entities.get(i);
+					entity.move(delta);
+				} // for
+			} // if
+
+			// draw all entities
+			for (int i = 0; i < entities.size(); i++) {
+				Entity entity = (Entity) entities.get(i);
+				entity.draw(g);
+			} // for
+
+			// if waiting for "any key press", draw message
+			if (waitingForKeyPress) {
+				g.setColor(Color.white);
+				g.drawString(message, (1080 - g.getFontMetrics().stringWidth(message)) / 2, 250);
+				g.drawString("Press any key", (600 - g.getFontMetrics().stringWidth("Press any key")) / 2, 300);
+			} // if
+
 			// clear graphics and flip buffer
 			g.dispose();
 			strategy.show();
+			
+			player.setHorizontalMovement(0);
+			// respond to user moving ship
+			if ((leftPressed) && (!rightPressed)) {
+				player.setHorizontalMovement(-moveSpeed);
+			} else if ((rightPressed) && (!leftPressed)) {
+				player.setHorizontalMovement(moveSpeed);
+			} // else
 
-           
-
-            // respond to user moving ship
-            if ((leftPressed) && (!rightPressed)) {
-              player.setHorizontalMovement(-moveSpeed);
-            } else if ((rightPressed) && (!leftPressed)) {
-              player.setHorizontalMovement(moveSpeed);
-            } // else
-            
 			// pause
 			// try { Thread.sleep(100); } catch (Exception e) {}
 

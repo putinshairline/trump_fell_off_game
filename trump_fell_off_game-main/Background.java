@@ -41,7 +41,7 @@ public class Background {
         window.drawImage(image, getX(), getY(), 600, 1080, null);
  
         //move the x position left for next time
-        this.y -= 18;
+        this.y -= 5;
  
         //check to see if the image has gone off stage left
         if (this.y <= -1 * 1080) {

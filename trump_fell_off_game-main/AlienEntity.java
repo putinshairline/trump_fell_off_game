@@ -14,8 +14,8 @@ public class AlienEntity extends Entity {
    *        r - the image representing the alien
    *        x, y - initial location of alien
    */
-  public AlienEntity(Game g, String r, int newX, int newY) {
-    super(r, newX, newY);  // calls the constructor in Entity
+  public AlienEntity(Game g, String r, int newX, int newY, int newH, int newW) {
+    super(r, newX, newY, newH, newW);  // calls the constructor in Entity
     game = g;
     dx = -moveSpeed;  // start off moving left
   } // constructor
@@ -25,18 +25,17 @@ public class AlienEntity extends Entity {
    * purpose: move alien
    */
   public void move (long delta){
-    // if we reach left side of screen and are moving left
-    // request logic update
-    if ((dx < 0) && (x < 10)) {
-    //  game.updateLogic();   // logic deals with moving entities
-                            // in other direction and down screen
-    } // if
+	// stop at left side of screenF
+	if ((dx < 0) && (x < -10)) {
+		return;
+	} // if
+		// stop at right side of screen
+	if ((dx > 0) && (x > 550)) {
+		return;
+	} // if
+	
 
-    // if we reach right side of screen and are moving right
-    // request logic update
-    if ((dx > 0) && (x > 999)) {
-    //  game.updateLogic();
-    } // if
+	super.move(delta); // calls the move method in Entity
     
     // proceed with normal move
     super.move(delta);

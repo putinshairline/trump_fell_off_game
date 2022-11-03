@@ -15,12 +15,11 @@
     
     protected double x;   // current x location
     protected double y;   // current y location
-    protected double w;	//width
-    protected double h; //Height
+    protected double h;
+    protected double w;
     protected Sprite sprite; // this entity's sprite
     protected double dx; // horizontal speed (px/s)  + -> right
     protected double dy; // vertical speed (px/s) + -> down
-    protected double m;
     
     private Rectangle me = new Rectangle(); // bounding rectangle of
                                             // this entity
@@ -31,7 +30,7 @@
      * input: reference to the image for this entity,
      *        initial x and y location to be drawn at
      */
-     public Entity(String r, int newX, int newY, int newW, int newH) {
+     public Entity(String r, int newX, int newY, int newH, int newW) {
        x = newX;
        y = newY;
        h = newH;
@@ -47,9 +46,11 @@
       */
      public void move(long delta) {
        // update location of entity based ov move speeds
+    	 System.out.println("Before move: " + x);
        x += (delta * dx) / 1000;
+       System.out.println("after move: " + x);
+       System.out.println(dx);
        y += (delta * dy) / 1000;
-       
      } // move
 
      // get and set velocities
@@ -77,15 +78,29 @@
      public int getY() {
        return (int) y;
      } // getY
-
-     public double getMass() {
-    	 return m;
+     
+     public void setY(int x) {
+    	 this.y = x;
      }
+     
+     public void setX(int x) {
+    	 this.x = x;
+     }
+     
+     public int getH() {
+         return (int) h;
+       } // getX
+
+       public int getW() {
+         return (int) w;
+       } // get
+     
+
     /*
      * Draw this entity to the graphics object provided at (x,y)
      */
      public void draw (Graphics g) {
-       sprite.draw(g,(int)x,(int)y, (int)w, (int)h);
+       sprite.draw(g,(int)x,(int)y);
      }  // draw
      
     /* Do the logic associated with this entity.  This method
@@ -93,16 +108,15 @@
      */
      public void doLogic() {}
      
-     public double jumpEquation(long delta) {return 0;}
-     
      /* collidesWith
       * input: the other entity to check collision against
       * output: true if entities collide
       * purpose: check if this entity collides with the other.
       */
      public boolean collidesWith(Entity other) {
-       me.setBounds((int)x , (int)y, (int)w, (int)h);
-       him.setBounds(other.getX(), other.getY(), (int)other.w, (int)other.h);
+       me.setBounds((int)x, (int)y, (int)h, (int)w);
+       him.setBounds(other.getX(), other.getY(), 
+                     other.getH(), other.getW());
        return me.intersects(him);
      } // collidesWith
      
