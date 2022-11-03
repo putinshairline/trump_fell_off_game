@@ -5,8 +5,8 @@ public class Player extends Entity{
 	private Game game;
 	
 	
-	public Player(Game g, String r, int newX, int newY) {
-		super(r, newX, newY);
+	public Player(Game g, String r, int newX, int newY, int newH, int newW) {
+		super(r, newX, newY, newH, newW);
 		game = g;
 	}
 
