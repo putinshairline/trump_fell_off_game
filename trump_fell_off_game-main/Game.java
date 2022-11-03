@@ -89,7 +89,7 @@ public class Game extends Canvas {
 	 * entities in the game.
 	 */
 	private void initEntities() {
-		Player p = new Player(this, "sprites/player.gif", 0, 0);
+		Player p = new Player(this, "sprites/player.gif", 0, 0, 40, 40);
 		entities.add(p);
 		
 	} // initEntities
