@@ -15,15 +15,24 @@ public class Player extends Entity{
 	}
 	
 	public void move(long delta) {
+		
 		// stop at left side of screenF
 		if ((dx < 0) && (x < -10)) {
 			return;
 		} // if
-			// stop at right side of screen
+		// stop at right side of screen
 		if ((dx > 0) && (x > 550)) {
 			return;
 		} // if
-		
+		// stop at top side of screenF
+		if ((dy < 0) && (y < 102)) {
+			return;
+		} // if
+		// stops at max dive distance
+		if((dy > 0) && (y > 250)) {
+			dy = -400;
+			return;
+		}// if
 
 		super.move(delta); // calls the move method in Entity
 	} // move

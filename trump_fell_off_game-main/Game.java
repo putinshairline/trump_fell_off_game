@@ -25,13 +25,13 @@ public class Game extends Canvas{
 	private int xPos; // x position for enemy entities
 	private int yPos; // x position for enemy entities
 	private int lastBird = 0; // time since last bird spawn in millis
+	private int lives;
 	private boolean gameRunning = true;
 	private ArrayList<Entity> entities = new ArrayList<>(); // list of entities
 													// in game
 	private ArrayList<Entity> removeEntities = new ArrayList<>(); // list of entities
 														// to remove this loop
 	private Entity player; // the player
-	private Entity bird; // the birds the player will dodge
 	private double moveSpeed = 600; // hor. vel. of ship (px/s)
 	private String message = ""; // message to display while waiting
 
@@ -92,10 +92,9 @@ public class Game extends Canvas{
 	 * entities in the game.
 	 */
 	private void initEntities() {
-		
-		player  = new Player(this, "sprites/player.gif", 0, 0, 40, 40);
+		player  = new Player(this, "sprites/player.gif", 260, 100, 40, 20);
 		entities.add(player);
-	
+		lives = 3; // add three lives to player
 	} // initEntities
 
 	/*
@@ -114,8 +113,16 @@ public class Game extends Canvas{
 	 * Notification that the player has died.
 	 */
 	public void notifyDeath() {
-		message = "L";
-		waitingForKeyPress = true;
+		
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		entities.clear();
+		System.exit(0);
+		
 	} // notifyDeath
 
 	/*
@@ -174,9 +181,9 @@ public class Game extends Canvas{
 					
 					//spawn 3 bird entities if enough time has passed
 					for(int i = 0; i < 4; i++) {
-						xPos = (int)(Math.random() * 550) + 1; // x position for enemy entities
-						yPos = (int)(Math.random() * 1150) + 970; // x position for enemy entities
-						Entity bird = new BirdEntity(this, "sprites/alien.gif", xPos, yPos, 25, 31);
+						xPos = (int)((Math.random() * 110) + 1)*5; // x position for enemy entities
+						yPos = (int)((Math.random() * 230) + 194)*5; // x position for enemy entities
+						Entity bird = new BirdEntity(this, "sprites/alien.gif", xPos, yPos, 15, 15);
 						entities.add(bird);
 					}// for 
 					
@@ -184,13 +191,12 @@ public class Game extends Canvas{
 				
 				for (int i = 0; i < entities.size(); i++) {
 					Entity entity = (Entity) entities.get(i);
-					if(entity instanceof BirdEntity && entity.getY() < 0) {
-						removeEntities.add(entity);
-					}
-					else if(entity instanceof BirdEntity) {
+					if(entity instanceof BirdEntity && downPressed) {
 						entity.setVerticalMovement(-800);
 					}
-					
+					else if(entity instanceof BirdEntity && !downPressed){
+						entity.setVerticalMovement(-600);
+					}
 					entity.move(delta);
 				} // for
 				
@@ -202,6 +208,23 @@ public class Game extends Canvas{
 				entity.draw(g);
 			} // for
 
+			
+			// if player collided with a bird, notify death
+			for (int i = 0; i < entities.size(); i++) {
+				if(!(entities.get(i) instanceof Player)){
+					
+					BirdEntity enemy = (BirdEntity) entities.get(i);
+					if(player.collidesWith(enemy)) {
+						if(lives==0) {
+							notifyDeath();
+						}
+						else if (lives > 0){
+							lives-=1;
+						}
+					}// if
+				}
+			} // for
+						
 			// if waiting for "any key press", draw message
 			if (waitingForKeyPress) {
 				g.setColor(Color.white);
@@ -214,19 +237,26 @@ public class Game extends Canvas{
 			strategy.show();
 			
 			player.setHorizontalMovement(0);
+			player.setVerticalMovement(0);
 			
 			// respond to user moving ship
 			if ((leftPressed) && (!rightPressed)) {
 				player.setHorizontalMovement(-moveSpeed);
 			} else if ((rightPressed) && (!leftPressed)) {
 				player.setHorizontalMovement(moveSpeed);
-			} // else
+			} else if(downPressed) {
+				backOne.setBackSpeed(18);
+				backTwo.setBackSpeed(18);
+				player.setVerticalMovement(120);
+			} else if(!downPressed) {
+				
+				backOne.setBackSpeed(5);
+				backTwo.setBackSpeed(5);
+				player.setVerticalMovement(-400);
+			}
 
 			// pause
 			// try { Thread.sleep(100); } catch (Exception e) {}
-			
-			entities.removeAll(removeEntities);
-			removeEntities.clear();
 
 		} // while
 
@@ -278,7 +308,7 @@ public class Game extends Canvas{
 				rightPressed = true;
 			} // if
 
-			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 				downPressed = true;
 			} // if
 
@@ -302,7 +332,7 @@ public class Game extends Canvas{
 				rightPressed = false;
 			} // if
 
-			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 				downPressed = false;
 			} // if
 
@@ -342,5 +372,3 @@ public class Game extends Canvas{
 		new Game();
 	} // main
 } // Game
-
-//entity

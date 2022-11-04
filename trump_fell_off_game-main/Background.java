@@ -11,10 +11,10 @@ import java.awt.Image;
 import javax.imageio.ImageIO;
 
 public class Background {
-	  private Image image; //backgroud image
+	private Image image; //backgroud image
     private int x; //x coordinate
     private int y; //y coordinate
-
+    private int backSpeed = 5;
  
     //constructor
     public Background() {
@@ -40,8 +40,9 @@ public class Background {
         //draw the image onto the Graphics reference
         window.drawImage(image, getX(), getY(), 600, 1080, null);
  
-        //move the x position left for next time
-        this.y -= 5;
+        
+		//move the x position left for next time
+        this.y -= backSpeed;
  
         //check to see if the image has gone off stage left
         if (this.y <= -1 * 1080) {
@@ -61,6 +62,9 @@ public class Background {
     public int getY() {
         return this.y;
     }//getY
+    public void setBackSpeed(int x) {
+    	this.backSpeed = x;
+    } // backSpeed set
     public int getImageWidth() {
         return 1080;
     }//getImageWidth

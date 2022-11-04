@@ -15,7 +15,7 @@ public class BirdEntity extends Entity{
 	
 	@Override
 	public void move(long delta) {
-		// stop at left side of screenF
+		// stop at top side of screenF
 		if ((dy < 0) && (y < 10)) {
 			return;
 		} // if

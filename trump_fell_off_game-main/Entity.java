@@ -102,6 +102,7 @@ public abstract class Entity {
 	 * periodically based on game events.
 	 */
 	public void doLogic() {
+		
 	}
 
 	/*
