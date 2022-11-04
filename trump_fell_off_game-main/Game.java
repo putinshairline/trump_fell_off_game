@@ -184,9 +184,13 @@ public class Game extends Canvas{
 				
 				for (int i = 0; i < entities.size(); i++) {
 					Entity entity = (Entity) entities.get(i);
-					if(entity instanceof BirdEntity) {
-						entity.setVerticalMovement(-400);
+					if(entity instanceof BirdEntity && entity.getY() < 0) {
+						removeEntities.add(entity);
 					}
+					else if(entity instanceof BirdEntity) {
+						entity.setVerticalMovement(-800);
+					}
+					
 					entity.move(delta);
 				} // for
 				
@@ -220,6 +224,9 @@ public class Game extends Canvas{
 
 			// pause
 			// try { Thread.sleep(100); } catch (Exception e) {}
+			
+			entities.removeAll(removeEntities);
+			removeEntities.clear();
 
 		} // while
 
@@ -335,3 +342,5 @@ public class Game extends Canvas{
 		new Game();
 	} // main
 } // Game
+
+//entity
