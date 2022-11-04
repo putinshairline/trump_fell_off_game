@@ -1,8 +1,8 @@
 
-public class BirdEntity extends Entity {
+public class CloudEntity extends Entity {
 	private Game game;
 
-	public BirdEntity(Game g, String r, int newX, int newY, int newH, int newW) {
+	public CloudEntity(Game g, String r, int newX, int newY, int newH, int newW) {
 		super(r, newX, newY, newH, newW);
 		game = g;
 	}// BirdEntity

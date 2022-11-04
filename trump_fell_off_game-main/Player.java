@@ -15,7 +15,12 @@ public class Player extends Entity{
 	}
 	
 	public void move(long delta) {
-		
+		if(dx < 0) {
+			super.sprite = (SpriteStore.get()).getSprite("sprites/playerL.gif");
+		}// if
+		if(dx > 0) {
+			super.sprite = (SpriteStore.get()).getSprite("sprites/playerR.gif");
+		} // if
 		// stop at left side of screenF
 		if ((dx < 0) && (x < -10)) {
 			return;

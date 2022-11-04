@@ -11,7 +11,7 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.util.ArrayList;
 
-public class Game extends Canvas{
+public class Game extends Canvas {
 
 	private BufferStrategy strategy; // take advantage of accelerated graphics
 	private boolean waitingForKeyPress = true; // true if game held up until
@@ -28,9 +28,9 @@ public class Game extends Canvas{
 	private int lives;
 	private boolean gameRunning = true;
 	private ArrayList<Entity> entities = new ArrayList<>(); // list of entities
-													// in game
+	// in game
 	private ArrayList<Entity> removeEntities = new ArrayList<>(); // list of entities
-														// to remove this loop
+	// to remove this loop
 	private Entity player; // the player
 	private double moveSpeed = 600; // hor. vel. of ship (px/s)
 	private String message = ""; // message to display while waiting
@@ -92,7 +92,7 @@ public class Game extends Canvas{
 	 * entities in the game.
 	 */
 	private void initEntities() {
-		player  = new Player(this, "sprites/player.gif", 260, 100, 40, 20);
+		player = new Player(this, "sprites/playerR.gif", 260, 100, 40, 20);
 		entities.add(player);
 		lives = 3; // add three lives to player
 	} // initEntities
@@ -113,7 +113,7 @@ public class Game extends Canvas{
 	 * Notification that the player has died.
 	 */
 	public void notifyDeath() {
-		
+
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
@@ -122,7 +122,7 @@ public class Game extends Canvas{
 		}
 		entities.clear();
 		System.exit(0);
-		
+
 	} // notifyDeath
 
 	/*
@@ -147,7 +147,7 @@ public class Game extends Canvas{
 
 		// keep loop running until game ends
 		while (gameRunning) {
-			
+
 			// calc. time since last update, will be used to calculate
 			// entities movement
 			long delta = System.currentTimeMillis() - lastLoopTime;
@@ -171,35 +171,42 @@ public class Game extends Canvas{
 
 			// draws the image onto the window
 			g.drawImage(back, null, 0, 0);
-			
-			
+
 			// move each entity
 			if (!waitingForKeyPress) {
 				// if enough time has passed to spawn new birds
-				if(lastBird > 2000) {
+				if (lastBird > 2000) {
 					lastBird = 0; // reset counter
-					
-					//spawn 3 bird entities if enough time has passed
-					for(int i = 0; i < 4; i++) {
-						xPos = (int)((Math.random() * 110) + 1)*5; // x position for enemy entities
-						yPos = (int)((Math.random() * 230) + 194)*5; // x position for enemy entities
-						Entity bird = new BirdEntity(this, "sprites/alien.gif", xPos, yPos, 15, 15);
+
+					// spawn 3 bird entities if enough time has passed
+					for (int i = 0; i < 4; i++) {
+						xPos = (int) ((Math.random() * 110) + 1) * 5; // x position for enemy entities
+						yPos = (int) ((Math.random() * 230) + 194) * 5; // x position for enemy entities
+						Entity bird = new BirdEntity(this, "sprites/bird.gif", xPos, yPos, 15, 15);
 						entities.add(bird);
-					}// for 
+					} // for
 					
-				} //if
+					// spawn 3 bird entities if enough time has passed
+					for (int i = 0; i < 2; i++) {
+						xPos = (int) ((Math.random() * 110) + 1) * 5; // x position for enemy entities
+						yPos = (int) ((Math.random() * 230) + 194) * 5; // x position for enemy entities
+						Entity cloud = new CloudEntity(this, "sprites/cloud.gif", xPos, yPos, 60, 25);
+						entities.add(cloud);
+					} // for
+
+				} // if
 				
+				//sets birds to move up
 				for (int i = 0; i < entities.size(); i++) {
 					Entity entity = (Entity) entities.get(i);
-					if(entity instanceof BirdEntity && downPressed) {
+					if (entity instanceof BirdEntity && downPressed) {
 						entity.setVerticalMovement(-800);
-					}
-					else if(entity instanceof BirdEntity && !downPressed){
+					} else if (entity instanceof BirdEntity && !downPressed) {
 						entity.setVerticalMovement(-600);
 					}
 					entity.move(delta);
 				} // for
-				
+
 			} // if move
 
 			// draw all entities
@@ -208,23 +215,38 @@ public class Game extends Canvas{
 				entity.draw(g);
 			} // for
 
-			
 			// if player collided with a bird, notify death
 			for (int i = 0; i < entities.size(); i++) {
-				if(!(entities.get(i) instanceof Player)){
-					
+				if (entities.get(i) instanceof BirdEntity) {
+
 					BirdEntity enemy = (BirdEntity) entities.get(i);
-					if(player.collidesWith(enemy)) {
-						if(lives==0) {
-							notifyDeath();
+					if (player.collidesWith(enemy)) {
+						if (lives == 0) {
+							for(Entity bird: entities) {
+								removeEntity(bird);
+							}
+							removeEntity(player);
+							backOne.setBackSpeed(0);
+							backTwo.setBackSpeed(0);
+							System.out.println("You died");
+						} else if (lives > 0) {
+							lives -= 1;
 						}
-						else if (lives > 0){
-							lives-=1;
-						}
-					}// if
+					} // if birdentity collides with player
+				}// if bird entity
+				if(entities.get(i) instanceof CloudEntity) {
+					BirdEntity cloud = (BirdEntity) entities.get(i);
+					
+					if(player.collidesWith(cloud)) {
+						moveSpeed = 300;
+					}
 				}
 			} // for
-						
+			
+			// remove dead entities
+	        entities.removeAll(removeEntities);
+	        removeEntities.clear();
+
 			// if waiting for "any key press", draw message
 			if (waitingForKeyPress) {
 				g.setColor(Color.white);
@@ -235,21 +257,21 @@ public class Game extends Canvas{
 			// clear graphics and flip buffer
 			g.dispose();
 			strategy.show();
-			
+
 			player.setHorizontalMovement(0);
 			player.setVerticalMovement(0);
-			
+
 			// respond to user moving ship
 			if ((leftPressed) && (!rightPressed)) {
 				player.setHorizontalMovement(-moveSpeed);
 			} else if ((rightPressed) && (!leftPressed)) {
 				player.setHorizontalMovement(moveSpeed);
-			} else if(downPressed) {
+			} else if (downPressed) {
 				backOne.setBackSpeed(18);
 				backTwo.setBackSpeed(18);
 				player.setVerticalMovement(120);
-			} else if(!downPressed) {
-				
+			} else if (!downPressed) {
+
 				backOne.setBackSpeed(5);
 				backTwo.setBackSpeed(5);
 				player.setVerticalMovement(-400);
@@ -261,6 +283,7 @@ public class Game extends Canvas{
 		} // while
 
 	} // gameLoop
+	
 
 	/*
 	 * startGame input: none output: none purpose: start a fresh game, clear old
