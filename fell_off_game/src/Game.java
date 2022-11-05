@@ -3,10 +3,13 @@
  *
  */
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Game extends Canvas {
@@ -112,18 +115,6 @@ public class Game extends Canvas {
 	/*
 	 * Notification that the player has died.
 	 */
-	public void notifyDeath() {
-
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		entities.clear();
-		System.exit(0);
-
-	} // notifyDeath
 
 	/*
 	 * Notification that the play has killed all aliens
@@ -312,9 +303,24 @@ public class Game extends Canvas {
 			// try { Thread.sleep(100); } catch (Exception e) {}
 
 		} // while
-		
-		Death.display(strategy, panel); // if this is reached, Game state = Death
-
+		/*
+		BufferedImage img = new BufferedImage(600, 1080, BufferedImage.TYPE_INT_ARGB);
+	
+		Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+		try {
+			Image image = ImageIO.read(getClass().getClassLoader().getResource("death.jpg"));
+			g.drawImage(image, 0, 0, null);
+		} catch (IOException e) {e.printStackTrace();}
+		*/
+		panel.removeAll();
+		panel.setBackground(Color.BLACK);
+		panel.setForeground(Color.BLACK);
+		Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+		Image image = new BufferedImage( 600, 1080, BufferedImage.TYPE_INT_ARGB);
+		try {
+			image = ImageIO.read(new File("bin/death.jpg"));
+		} catch (IOException e) {e.printStackTrace();}
+		g.drawImage(image, 0, 0, null);
 	} // gameLoop
 	
 
