@@ -1,10 +1,8 @@
-
 /* Game.java
  * Space Invaders Main Program
  *
  */
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -19,6 +17,7 @@ public class Game extends Canvas {
 	private boolean leftPressed = false; // true if left arrow key currently pressed
 	private boolean rightPressed = false; // true if right arrow key currently pressed
 	private boolean upPressed = false; // true if up arrow key is pressed
+	private boolean cloudCollision = false;
 	private boolean downPressed = false; // true if down arrow key is pressed
 	private final int GAME_WIDTH = 600; // width of game
 	private final int GAME_HEIGHT = 1080; // height of game
@@ -53,7 +52,7 @@ public class Game extends Canvas {
 		// set up canvas size (this) and add to frame
 		setBounds(0, 0, 600, 1080);
 		panel.add(this);
-
+		
 		// Tell AWT not to bother repainting canvas since that will
 		// be done using graphics acceleration
 		setIgnoreRepaint(true);
@@ -84,7 +83,7 @@ public class Game extends Canvas {
 		initEntities();
 
 		// start the game
-		gameLoop();
+		gameLoop(panel);
 	} // constructor
 
 	/*
@@ -137,17 +136,17 @@ public class Game extends Canvas {
 	 * contents (entities, text) - updates game events - checks input
 	 */
 
-	public void gameLoop() {
+	public void gameLoop(JPanel panel) {
+		
 		long lastLoopTime = System.currentTimeMillis();
 
 		// Scrolling Background
 		BufferedImage back = null; // background image
 		Background backOne = new Background(); // first copy of background image (used for moving background)
-		Background backTwo = new Background(backOne.getImageWidth(), 0); // second copy of background image (used for
-																			// moving background)
+		Background backTwo = new Background(backOne.getImageWidth(), 0); // second copy of background image (used for moving background)
 
 		// keep loop running until game ends
-		while (gameRunning) {
+		while (Gamestate.state == Gamestate.GAME) {
 
 			// calc. time since last update, will be used to calculate
 			// entities movement
@@ -181,15 +180,15 @@ public class Game extends Canvas {
 					lastBird = 0; // reset counter
 
 					// spawn 3 bird entities if enough time has passed
-					for (int i = 0; i < 4; i++) {
+					for (int i = 0; i < 6; i++) {
 						xPos = (int) ((Math.random() * 110) + 1) * 5; // x position for enemy entities
 						yPos = (int) ((Math.random() * 230) + 194) * 5; // x position for enemy entities
 						Entity bird = new BirdEntity(this, "sprites/bird.gif", xPos, yPos, 20, 20);
 						entities.add(bird);
 					} // for
 					
-					// spawn 3 bird entities if enough time has passed
-					for (int i = 0; i < 2; i++) {
+					// spawn 4 cloud entities if enough time has passed
+					for (int i = 0; i < 4; i++) {
 						xPos = (int) ((Math.random() * 110) + 1) * 5; // x position for enemy entities
 						yPos = (int) ((Math.random() * 230) + 194) * 5; // x position for enemy entities
 						Entity cloud = new CloudEntity(this, "sprites/cloud.gif", xPos, yPos, 70, 30);
@@ -229,48 +228,52 @@ public class Game extends Canvas {
 
 					BirdEntity enemy = (BirdEntity) entities.get(i);
 					if (player.collidesWith(enemy)) {
-						
-						for(Entity bird: entities) {
-							removeEntity(bird);
-						}// for
-						removeEntity(player);
+						Gamestate.state = Gamestate.DEATH;
+						entities.clear();
+						backOne.setBackSpeed(0);
+						backTwo.setBackSpeed(0);
 						System.out.println("You died");
-						notifyDeath();
-						
+						break;
 					} // if birdentity collides with player
 					
 				}// if bird entity
 				
-				/*
-				if(entities.get(i) instanceof CloudEntity) {
-					CloudEntity cloud = (CloudEntity) entities.get(i);
-					
-					//if
-					if(player.collidesWith(cloud)) {
-						cloudTime = 0;
+				if(entities.get(i) instanceof CloudEntity && player.collidesWith(entities.get(i))) {
+					cloudCollision = true;
+					cloudTime = 0;
+					moveSpeed = 100;
+					for(Entity ent: entities) {
+						if(ent instanceof CloudEntity || ent instanceof BirdEntity) {
+							ent.setVerticalMovement(-150);
+						}// if
+						backOne.setBackSpeed(1); // sets background to slow down
+						backTwo.setBackSpeed(1); // ibid
+					}// for
+				}
+				else if(cloudCollision){
+					if(cloudTime < 1500) {
 						moveSpeed = 100;
 						for(Entity ent: entities) {
-							if(ent instanceof CloudEntity || ent instanceof BirdEntity) {
+							if(!(ent instanceof Player)) {
 								ent.setVerticalMovement(-150);
 							}// if
 							backOne.setBackSpeed(1); // sets background to slow down
 							backTwo.setBackSpeed(1); // ibid
 						}// for
 					}// if
-					
-					// if
-					if(cloudTime < 500) {
+					else if(cloudTime > 1500) {
+						cloudCollision = false;
+						cloudTime = 0;
 						moveSpeed = 600; // resets moveSpeed
 						for(Entity ent: entities) {
-							if(ent instanceof CloudEntity || ent instanceof BirdEntity) {
+							if(!(ent instanceof Player)) {
 								ent.setVerticalMovement(-600);
 							}// if
 							backOne.setBackSpeed(5); // sets background to slow down
 							backTwo.setBackSpeed(5); // ibid
 						}// for
-					}
-				} // if
-				*/
+					} //elif
+				} //elif
 			} // for
 			
 			// remove dead entities
@@ -300,16 +303,17 @@ public class Game extends Canvas {
 				backOne.setBackSpeed(18);
 				backTwo.setBackSpeed(18);
 				player.setVerticalMovement(120);
-			} else if (!downPressed) {
-				backOne.setBackSpeed(5);
-				backTwo.setBackSpeed(5);
+			} else if (!downPressed && !cloudCollision) {
+				
 				player.setVerticalMovement(-400);
-			}
+			} // elif
 
 			// pause
 			// try { Thread.sleep(100); } catch (Exception e) {}
 
 		} // while
+		
+		Death.display(strategy, panel); // if this is reached, Game state = Death
 
 	} // gameLoop
 	

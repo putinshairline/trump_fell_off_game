@@ -65,6 +65,9 @@ public class Background {
     public void setBackSpeed(int x) {
     	this.backSpeed = x;
     } // backSpeed set
+    public int getBackSpeed() {
+    	return this.backSpeed;
+    }
     public int getImageWidth() {
         return 1080;
     }//getImageWidth
