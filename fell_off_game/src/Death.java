@@ -6,9 +6,8 @@ import javax.swing.JPanel;
 
 public class Death {
 	
-	public static void display(BufferStrategy strategy, JPanel panel) {
+	public static void display(BufferStrategy strategy) {
 		System.out.println("Display was called");
-		panel.removeAll();
 		// get graphics context for the accelerated surface and make it black
 		Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 		g.setBackground(Color.BLACK);

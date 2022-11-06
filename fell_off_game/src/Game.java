@@ -28,8 +28,14 @@ public class Game extends Canvas {
 	private int yPos; // x position for enemy entities
 	private int lastBird = 0; // time since last bird spawn in millis
 	private int cloudTime = 0;
-	private int lives;
-	private boolean gameRunning = true;
+	private float gameSpeed = 1.0F;
+	private int lives; // lives counter
+	//life counter
+	private Life l1;
+	private Life l2;
+	private Life l3;
+	//private boolean gameRunning = true;
+	private boolean lifeDrawn = true;
 	private ArrayList<Entity> entities = new ArrayList<>(); // list of entities
 	// in game
 	private ArrayList<Entity> removeEntities = new ArrayList<>(); // list of entities
@@ -97,7 +103,9 @@ public class Game extends Canvas {
 	private void initEntities() {
 		player = new Player(this, "sprites/playerR.gif", 260, 100, 40, 20);
 		entities.add(player);
+		
 		lives = 3; // add three lives to player
+		
 	} // initEntities
 
 	/*
@@ -141,7 +149,7 @@ public class Game extends Canvas {
 
 			// calc. time since last update, will be used to calculate
 			// entities movement
-			long delta = System.currentTimeMillis() - lastLoopTime;
+			long delta = (long) ((System.currentTimeMillis() - lastLoopTime)*gameSpeed);
 			lastBird += delta;
 			cloudTime += delta;
 			lastLoopTime = System.currentTimeMillis();
@@ -185,7 +193,14 @@ public class Game extends Canvas {
 						Entity cloud = new CloudEntity(this, "sprites/cloud.gif", xPos, yPos, 70, 30);
 						entities.add(cloud);
 					} // for
-
+					
+					//add three hearts to the screen
+					l1 = new Life(this, "sprites/heart.gif", 0, 0, 40, 40);
+					entities.add(l1);
+					l2 = new Life(this, "sprites/heart.gif", 40, 0, 40, 40);
+					entities.add(l2);
+					l3 = new Life(this, "sprites/heart.gif", 80, 0, 40, 40);
+					entities.add(l3);
 				} // if
 				
 				//sets birds to move up
@@ -210,59 +225,48 @@ public class Game extends Canvas {
 			// draw all entities
 			for (int i = 0; i < entities.size(); i++) {
 				Entity entity = (Entity) entities.get(i);
-				entity.draw(g);
+				if(!(entity instanceof Life)) {
+					entity.draw(g);
+				}
+				
 			} // for
-
-			// if player collided with a bird, notify death
+			
+			if(lifeDrawn) {
+				//draw all necessary hearts
+				for(Entity life: entities) {
+					if(life instanceof Life) {
+						life.draw(g);
+					}
+				}// for
+				lifeDrawn = false;
+				System.out.println("LIFE_DRAWN");
+			}
+			// if player collided with a bird, -- lives left
 			for (int i = 0; i < entities.size(); i++) {
 				if (entities.get(i) instanceof BirdEntity) {
 
 					BirdEntity enemy = (BirdEntity) entities.get(i);
 					if (player.collidesWith(enemy)) {
-						Gamestate.state = Gamestate.DEATH;
-						entities.clear();
-						backOne.setBackSpeed(0);
-						backTwo.setBackSpeed(0);
-						System.out.println("You died");
-						break;
+						removeEntities.add(enemy);
+						lives--;
 					} // if birdentity collides with player
 					
 				}// if bird entity
 				
+				// deals with cloud collsions and slo-mo
 				if(entities.get(i) instanceof CloudEntity && player.collidesWith(entities.get(i))) {
 					cloudCollision = true;
 					cloudTime = 0;
-					moveSpeed = 100;
-					for(Entity ent: entities) {
-						if(ent instanceof CloudEntity || ent instanceof BirdEntity) {
-							ent.setVerticalMovement(-150);
-						}// if
-						backOne.setBackSpeed(1); // sets background to slow down
-						backTwo.setBackSpeed(1); // ibid
-					}// for
-				}
+					gameSpeed = 0.3F;
+				}// if
 				else if(cloudCollision){
-					if(cloudTime < 1500) {
-						moveSpeed = 100;
-						for(Entity ent: entities) {
-							if(!(ent instanceof Player)) {
-								ent.setVerticalMovement(-150);
-							}// if
-							backOne.setBackSpeed(1); // sets background to slow down
-							backTwo.setBackSpeed(1); // ibid
-						}// for
+					if(cloudTime < 500) {
+						gameSpeed = 0.3F;
 					}// if
-					else if(cloudTime > 1500) {
+					else if(cloudTime > 500) {
 						cloudCollision = false;
 						cloudTime = 0;
-						moveSpeed = 600; // resets moveSpeed
-						for(Entity ent: entities) {
-							if(!(ent instanceof Player)) {
-								ent.setVerticalMovement(-600);
-							}// if
-							backOne.setBackSpeed(5); // sets background to slow down
-							backTwo.setBackSpeed(5); // ibid
-						}// for
+						gameSpeed = 1.0F;
 					} //elif
 				} //elif
 			} // for
@@ -295,15 +299,23 @@ public class Game extends Canvas {
 				backTwo.setBackSpeed(18);
 				player.setVerticalMovement(120);
 			} else if (!downPressed && !cloudCollision) {
-				
 				player.setVerticalMovement(-400);
 			} // elif
 
 			// pause
 			// try { Thread.sleep(100); } catch (Exception e) {}
-
+			if(lives==2) {
+				entities.remove(l3);	
+			} else if(lives == 1) {
+				entities.remove(l2);
+			} else if(lives == 0) {
+				entities.remove(l1);
+				Gamestate.state = Gamestate.DEATH;
+			}// if
+			
+			
 		} // while
-		/*
+		
 		BufferedImage img = new BufferedImage(600, 1080, BufferedImage.TYPE_INT_ARGB);
 	
 		Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
@@ -311,16 +323,7 @@ public class Game extends Canvas {
 			Image image = ImageIO.read(getClass().getClassLoader().getResource("death.jpg"));
 			g.drawImage(image, 0, 0, null);
 		} catch (IOException e) {e.printStackTrace();}
-		*/
-		panel.removeAll();
-		panel.setBackground(Color.BLACK);
-		panel.setForeground(Color.BLACK);
-		Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-		Image image = new BufferedImage( 600, 1080, BufferedImage.TYPE_INT_ARGB);
-		try {
-			image = ImageIO.read(new File("bin/death.jpg"));
-		} catch (IOException e) {e.printStackTrace();}
-		g.drawImage(image, 0, 0, null);
+		
 	} // gameLoop
 	
 
@@ -377,6 +380,11 @@ public class Game extends Canvas {
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
 				upPressed = true;
 			} // if
+			
+			if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+				System.out.println("Game exited with code _0");
+				System.exit(0);
+			}// if esc=true, close game
 		} // keyPressed
 
 		public void keyReleased(KeyEvent e) {
