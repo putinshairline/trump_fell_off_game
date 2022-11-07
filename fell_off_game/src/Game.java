@@ -92,7 +92,7 @@ public class Game extends Canvas {
 		initEntities();
 
 		// start the game
-		gameLoop(panel);
+		gameLoop(panel, container);
 	} // constructor
 
 	/*
@@ -135,7 +135,7 @@ public class Game extends Canvas {
 	 * contents (entities, text) - updates game events - checks input
 	 */
 
-	public void gameLoop(JPanel panel) {
+	public void gameLoop(JPanel panel, JFrame container) {
 		
 		long lastLoopTime = System.currentTimeMillis();
 
@@ -145,7 +145,7 @@ public class Game extends Canvas {
 		Background backTwo = new Background(backOne.getImageWidth(), 0); // second copy of background image (used for moving background)
 
 		// keep loop running until game ends
-		while (Gamestate.state == Gamestate.GAME) {
+		while (Game.Gamestate.state == Game.Gamestate.GAME) {
 
 			// calc. time since last update, will be used to calculate
 			// entities movement
@@ -225,12 +225,13 @@ public class Game extends Canvas {
 			// draw all entities
 			for (int i = 0; i < entities.size(); i++) {
 				Entity entity = (Entity) entities.get(i);
-				if(!(entity instanceof Life)) {
+				//if(!(entity instanceof Life)) {
 					entity.draw(g);
-				}
+				//}
 				
 			} // for
 			
+			/*
 			if(lifeDrawn) {
 				//draw all necessary hearts
 				for(Entity life: entities) {
@@ -241,6 +242,8 @@ public class Game extends Canvas {
 				lifeDrawn = false;
 				System.out.println("LIFE_DRAWN");
 			}
+			*/
+			
 			// if player collided with a bird, -- lives left
 			for (int i = 0; i < entities.size(); i++) {
 				if (entities.get(i) instanceof BirdEntity) {
@@ -257,11 +260,11 @@ public class Game extends Canvas {
 				if(entities.get(i) instanceof CloudEntity && player.collidesWith(entities.get(i))) {
 					cloudCollision = true;
 					cloudTime = 0;
-					gameSpeed = 0.3F;
+					gameSpeed = 0.9F;
 				}// if
 				else if(cloudCollision){
 					if(cloudTime < 500) {
-						gameSpeed = 0.3F;
+						gameSpeed = 0.9F;
 					}// if
 					else if(cloudTime > 500) {
 						cloudCollision = false;
@@ -304,17 +307,19 @@ public class Game extends Canvas {
 
 			// pause
 			// try { Thread.sleep(100); } catch (Exception e) {}
+			
 			if(lives==2) {
 				entities.remove(l3);	
 			} else if(lives == 1) {
 				entities.remove(l2);
 			} else if(lives == 0) {
 				entities.remove(l1);
-				Gamestate.state = Gamestate.DEATH;
+				Game.Gamestate.state = Game.Gamestate.DEATH;
 			}// if
 			
 			
 		} // while
+		
 		
 		BufferedImage img = new BufferedImage(600, 1080, BufferedImage.TYPE_INT_ARGB);
 	
@@ -324,9 +329,9 @@ public class Game extends Canvas {
 			g.drawImage(image, 0, 0, null);
 		} catch (IOException e) {e.printStackTrace();}
 		
+		
 	} // gameLoop
 	
-
 	/*
 	 * startGame input: none output: none purpose: start a fresh game, clear old
 	 * data
@@ -433,6 +438,13 @@ public class Game extends Canvas {
 		} // keyTyped
 
 	} // class KeyInputHandler
+	
+	private enum Gamestate {
+		GAME, DEATH, MENU;
+		
+		protected static Gamestate state = GAME; 
+	} // gamestate
+
 
 	/**
 	 * Main Program
