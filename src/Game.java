@@ -34,6 +34,8 @@ public class Game extends Canvas {
 	Life l2;
 	Life l3;
 	private boolean ld = true;
+	Graphics2D g;
+	Death death;
 	//private boolean gameRunning = true;
 	private boolean lifeDrawn = true;
 	private ArrayList<Entity> entities = new ArrayList<>(); // list of entities
@@ -91,7 +93,7 @@ public class Game extends Canvas {
 		// create buffer strategy to take advantage of accelerated graphics
 		createBufferStrategy(2);
 		strategy = getBufferStrategy();
-
+		g = (Graphics2D) strategy.getDrawGraphics();
 		// initialize entities
 		initEntities();
 
@@ -117,6 +119,7 @@ public class Game extends Canvas {
 		entities.add(l3);
 		
 		lives = 3; // add three lives to player
+		death = new Death(this, "death.jpg", 0, 0, 1080, 600);
 		
 	} // initEntities
 
@@ -156,6 +159,7 @@ public class Game extends Canvas {
 		Background backOne = new Background(); // first copy of background image (used for moving background)
 		Background backTwo = new Background(backOne.getImageHeight(), 0); // second copy of background image (used for moving background)
 		boolean ded = false; // ded?
+		
 		// keep loop running until game ends
 		while (Gamestate.state == Gamestate.GAME) {
 
@@ -292,41 +296,27 @@ public class Game extends Canvas {
 			} else if ((rightPressed) && (!leftPressed)) {
 				player.setHorizontalMovement(moveSpeed);
 			} else if (downPressed) {
-				backOne.setBackSpeed(18);
-				backTwo.setBackSpeed(18);
+				gameSpeed = 1.3F;
 				player.setVerticalMovement(120);
 			} else if (!downPressed && !cloudCollision) {
+				gameSpeed = 1.0F;
 				player.setVerticalMovement(-400);
 			} // elif
 
 			// pause
 			// try { Thread.sleep(100); } catch (Exception e) {}
-			
-			if(ded) {
-				Gamestate.state = Gamestate.DEATH;
-			} //if
 			if(lives==2) {
 				removeEntities.add(l3);
-				System.out.println(l3);
 			} else if(lives == 1) {
 				removeEntities.add(l2);
 			} else if(lives == 0) {
-				ded = true;
-				removeEntities.add(l1);
+				removeEntities.addAll(entities);
+				Gamestate.state = Gamestate.DEATH;
 			}// if
 			
 		} // while
 		
-		
-		BufferedImage img = new BufferedImage(600, 1080, BufferedImage.TYPE_INT_ARGB);
-	
-		Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-		try {
-			Image image = ImageIO.read(getClass().getClassLoader().getResource("death.jpg"));
-			g.drawImage(image, 0, 0, null);
-		} catch (IOException e) {e.printStackTrace();}
-		
-		
+		death.draw(g);
 	} // gameLoop
 	
 	/*
