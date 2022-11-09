@@ -1,3 +1,4 @@
+
 /* Game.java
  * Space Invaders Main Program
  *
@@ -30,13 +31,14 @@ public class Game extends Canvas {
 	private int cloudTime = 0;
 	private float gameSpeed = 1.0F;
 	private int lives; // lives counter
+	JPanel panel;
 	Life l1;
 	Life l2;
 	Life l3;
 	private boolean ld = true;
 	Graphics2D g;
 	Death death;
-	//private boolean gameRunning = true;
+	// private boolean gameRunning = true;
 	private boolean lifeDrawn = true;
 	private ArrayList<Entity> entities = new ArrayList<>(); // list of entities
 	// in game
@@ -46,6 +48,7 @@ public class Game extends Canvas {
 	private double moveSpeed = 600; // hor. vel. of ship (px/s)
 	private String message = ""; // message to display while waiting
 	private JPanel livePanel;
+
 	/*
 	 * Construct our game and set it running.
 	 */
@@ -54,20 +57,19 @@ public class Game extends Canvas {
 		JFrame container = new JFrame("Commodore 64 Space Invaders/changed");
 
 		// get hold the content of the frame
-		JPanel panel = (JPanel) container.getContentPane();
-		//livePanel = new JPanel();
+		panel = (JPanel) container.getContentPane();
+		// livePanel = new JPanel();
 
 		// set up the resolution of the game
 		panel.setPreferredSize(new Dimension(600, 1080));
 		panel.setLayout(null);
 		/*
-		livePanel.setLocation(0,0);
-		livePanel.setSize(120, 40);
-		*/
+		 * livePanel.setLocation(0,0); livePanel.setSize(120, 40);
+		 */
 		// set up canvas size (this) and add to frame
 		setBounds(0, 0, 600, 1080);
 		panel.add(this);
-		
+
 		// Tell AWT not to bother repainting canvas since that will
 		// be done using graphics acceleration
 		setIgnoreRepaint(true);
@@ -95,10 +97,10 @@ public class Game extends Canvas {
 		strategy = getBufferStrategy();
 		g = (Graphics2D) strategy.getDrawGraphics();
 		// initialize entities
-		initEntities();
 
+		Gamestate.running = true;
 		// start the game
-		gameLoop(panel, container);
+		gameLoop();
 	} // constructor
 
 	/*
@@ -109,18 +111,18 @@ public class Game extends Canvas {
 	private void initEntities() {
 		player = new Player(this, "sprites/playerR.gif", 260, 100, 40, 20);
 		entities.add(player);
-		
-		//add three hearts to the screen
+
+		// add three hearts to the screen
 		l1 = new Life(this, "sprites/heart.gif", 0, 1, 40, 40);
 		entities.add(l1);
 		l2 = new Life(this, "sprites/heart.gif", 40, 1, 40, 40);
 		entities.add(l2);
 		l3 = new Life(this, "sprites/heart.gif", 80, 1, 40, 40);
 		entities.add(l3);
-		
+
 		lives = 3; // add three lives to player
 		death = new Death(this, "death.jpg", 0, 0, 1080, 600);
-		
+
 	} // initEntities
 
 	/*
@@ -150,47 +152,58 @@ public class Game extends Canvas {
 	 * contents (entities, text) - updates game events - checks input
 	 */
 
-	public void gameLoop(JPanel panel, JFrame container) {
-		
+	public void gameLoop() {
+
 		long lastLoopTime = System.currentTimeMillis();
 
 		// Scrolling Background
 		BufferedImage back = null; // background image
 		Background backOne = new Background(); // first copy of background image (used for moving background)
-		Background backTwo = new Background(backOne.getImageHeight(), 0); // second copy of background image (used for moving background)
+		Background backTwo = new Background(backOne.getImageHeight(), 0); // second copy of background image (used for
+																			// moving background)
 		boolean ded = false; // ded?
 		
-		// keep loop running until game ends
-		while (Gamestate.state == Gamestate.GAME) {
+		while (Gamestate.running) {
+			g = (Graphics2D) strategy.getDrawGraphics();
+			if (Gamestate.state == Gamestate.MENU) {
+				g.setColor(Color.BLACK);
+				g.drawString("menu", 50, 50);
 
-			// calc. time since last update, will be used to calculate
-			// entities movement
-			long delta = (long) ((System.currentTimeMillis() - lastLoopTime)*gameSpeed);
-			lastBird += delta;
-			cloudTime += delta;
-			lastLoopTime = System.currentTimeMillis();
+				if (!waitingForKeyPress) {
+					System.out.println("starting");
+					initEntities();
+					Gamestate.state = Gamestate.GAME;
+				} // if
+			} // if
+				// keep loop running until game ends
+			else if (Gamestate.state == Gamestate.GAME) {
 
-			// get graphics context for the accelerated surface and make it black
-			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+				// calc. time since last update, will be used to calculate
+				// entities movement
+				long delta = (long) ((System.currentTimeMillis() - lastLoopTime) * gameSpeed);
+				lastBird += delta;
+				cloudTime += delta;
+				lastLoopTime = System.currentTimeMillis();
 
-			// scrolling Background
-			if (back == null) {
-				back = (BufferedImage) (createImage(getWidth(), getHeight()));
-			}
+				// get graphics context for the accelerated surface and make it black
 
-			// creates a buffer to draw to
-			Graphics buffer = back.createGraphics();
+				// scrolling Background
+				if (back == null) {
+					back = (BufferedImage) (createImage(getWidth(), getHeight()));
+				}
 
-			// puts the two copies of the background image onto the buffer
-			backOne.draw(buffer);
-			backTwo.draw(buffer);
+				// creates a buffer to draw to
+				Graphics buffer = back.createGraphics();
 
-			// draws the image onto the window
-			g.drawImage(back, null, 0, 0);
+				// puts the two copies of the background image onto the buffer
+				backOne.draw(buffer);
+				backTwo.draw(buffer);
 
-			// move each entity
-			if (!waitingForKeyPress) {
-				
+				// draws the image onto the window
+				g.drawImage(back, null, 0, 0);
+
+				// move each entity
+
 				// if enough time has passed to spawn new birds
 				if (lastBird > 1000) {
 					lastBird = 0; // reset counter
@@ -202,7 +215,7 @@ public class Game extends Canvas {
 						Entity bird = new BirdEntity(this, "sprites/bird.gif", xPos, yPos, 20, 20);
 						entities.add(bird);
 					} // for
-					
+
 					// spawn 4 cloud entities if enough time has passed
 					for (int i = 0; i < 4; i++) {
 						xPos = (int) ((Math.random() * 110) + 1) * 5; // x position for enemy entities
@@ -210,115 +223,122 @@ public class Game extends Canvas {
 						Entity cloud = new CloudEntity(this, "sprites/cloud.gif", xPos, yPos, 70, 30);
 						entities.add(cloud);
 					} // for
-					
 				} // if
-				
-				//sets birds to move up
+
+				// sets enemies to move up
 				for (int i = 0; i < entities.size(); i++) {
 					Entity entity = (Entity) entities.get(i);
 					if (entity instanceof BirdEntity || entity instanceof CloudEntity && downPressed) {
 						entity.setVerticalMovement(-800);
 					} else if (entity instanceof BirdEntity || entity instanceof CloudEntity && !downPressed) {
 						entity.setVerticalMovement(-600);
-					}// else if
-					
-					//remove entities that pass the upper screen limit
-					if(entity.y <= 0) {
+					} // else if
+
+					// remove entities that pass the upper screen limit
+					if (entity.y < 0) {
 						removeEntities.add(entity);
-					}// if
-					
+					} // if
+
 					entity.move(delta);
 				} // for
-				
-			} // if move
-			
-			// draw all entities
-			for (int i = 0; i < entities.size(); i++) {
-				Entity entity = (Entity) entities.get(i);
-				entity.draw(g);
-				
-			} // for
-			
-			
-			// if player collided with a bird, -- lives left
-			for (int i = 0; i < entities.size(); i++) {
-				if (entities.get(i) instanceof BirdEntity) {
 
-					BirdEntity enemy = (BirdEntity) entities.get(i);
-					if (player.collidesWith(enemy)) {
-						try { Thread.sleep(20); } catch (Exception e) {}
-						removeEntities.add(enemy);
-						lives--;
-						System.out.println(lives + " lives left");
-					} // if birdEntity collides with player
+				// draw all entities
+				for (int i = 0; i < entities.size(); i++) {
+					Entity entity = (Entity) entities.get(i);
 					
-				}// if bird entity
-				
-				// deals with cloud collsions and slo-mo
-				if(entities.get(i) instanceof CloudEntity && player.collidesWith(entities.get(i))) {
-					cloudCollision = true;
-					cloudTime = 0;
-					gameSpeed = 0.9F;
-				}// if
-				else if(cloudCollision){
-					if(cloudTime < 500) {
-						gameSpeed = 0.9F;
-					}// if
-					else if(cloudTime > 500) {
-						cloudCollision = false;
+					entity.draw(g);
+
+				} // for
+
+				// if player collided with a bird, -- lives left
+				for (int i = 0; i < entities.size(); i++) {
+					if (entities.get(i) instanceof BirdEntity) {
+
+						BirdEntity enemy = (BirdEntity) entities.get(i);
+						if (player.collidesWith(enemy)) {
+							try {
+								Thread.sleep(20);
+							} catch (Exception e) {
+							}
+							removeEntities.add(enemy);
+							lives--;
+							System.out.println(lives + " lives left");
+						} // if birdEntity collides with player
+
+					} // if bird entity
+
+					// deals with cloud collsions and slo-mo
+					if (entities.get(i) instanceof CloudEntity && player.collidesWith(entities.get(i))) {
+						cloudCollision = true;
 						cloudTime = 0;
-						gameSpeed = 1.0F;
-					} //elif
-				} //elif
-			} // for
+						gameSpeed = 0.9F;
+					} // if
+					else if (cloudCollision) {
+						if (cloudTime < 500) {
+							gameSpeed = 0.9F;
+						} // if
+						else if (cloudTime > 500) {
+							cloudCollision = false;
+							cloudTime = 0;
+							gameSpeed = 1.0F;
+						} // elif
+
+					} // elif cloud collision
+				}// for
+				
+				// remove dead entities
+				entities.removeAll(removeEntities);
+				removeEntities.clear();
+
+				// if waiting for "any key press", draw message
+				if (waitingForKeyPress) {
+					g.setColor(Color.white);
+					g.drawString(message, (1080 - g.getFontMetrics().stringWidth(message)) / 2, 250);
+					g.drawString("Press any key", (600 - g.getFontMetrics().stringWidth("Press any key")) / 2, 300);
+				} // if
+
+				// clear graphics and flip buffer
+				g.dispose();
+				strategy.show();
+
+				player.setHorizontalMovement(0);
+				player.setVerticalMovement(0);
+
+				// respond to user moving ship
+				if ((leftPressed) && (!rightPressed)) {
+					player.setHorizontalMovement(-moveSpeed);
+				} else if ((rightPressed) && (!leftPressed)) {
+					player.setHorizontalMovement(moveSpeed);
+				} else if (downPressed) {
+					gameSpeed = 1.3F;
+					player.setVerticalMovement(120);
+				} else if (!downPressed && !cloudCollision) {
+					gameSpeed = 1.0F;
+					player.setVerticalMovement(-400);
+				} // elif
+
+				// pause
+				// try { Thread.sleep(100); } catch (Exception e) {}
+				if (lives == 2) {
+					removeEntities.add(l3);
+				} else if (lives == 1) {
+					removeEntities.add(l2);
+				} else if (lives == 0) {
+					removeEntities.addAll(entities);
+					Gamestate.state = Gamestate.DEATH;
+				} // if
+
+			} // else if GAME = STATE
+			else if(Gamestate.state == Gamestate.DEATH) {
+				System.out.println("You Are Dead");
+				System.exit(0);
+			}// death
 			
-			// remove dead entities
-	        entities.removeAll(removeEntities);
-	        removeEntities.clear();
+		} // while (runing)
 
-			// if waiting for "any key press", draw message
-			if (waitingForKeyPress) {
-				g.setColor(Color.white);
-				g.drawString(message, (1080 - g.getFontMetrics().stringWidth(message)) / 2, 250);
-				g.drawString("Press any key", (600 - g.getFontMetrics().stringWidth("Press any key")) / 2, 300);
-			} // if
-
-			// clear graphics and flip buffer
-			g.dispose();
-			strategy.show();
-
-			player.setHorizontalMovement(0);
-			player.setVerticalMovement(0);
-
-			// respond to user moving ship
-			if ((leftPressed) && (!rightPressed)) {
-				player.setHorizontalMovement(-moveSpeed);
-			} else if ((rightPressed) && (!leftPressed)) {
-				player.setHorizontalMovement(moveSpeed);
-			} else if (downPressed) {
-				gameSpeed = 1.3F;
-				player.setVerticalMovement(120);
-			} else if (!downPressed && !cloudCollision) {
-				gameSpeed = 1.0F;
-				player.setVerticalMovement(-400);
-			} // elif
-
-			// pause
-			// try { Thread.sleep(100); } catch (Exception e) {}
-			if(lives==2) {
-				removeEntities.add(l3);
-			} else if(lives == 1) {
-				removeEntities.add(l2);
-			} else if(lives == 0) {
-				removeEntities.addAll(entities);
-				Gamestate.state = Gamestate.DEATH;
-			}// if
-			
-		} // while
-		
 		death.draw(g);
 	} // gameLoop
-	
+
 	/*
 	 * startGame input: none output: none purpose: start a fresh game, clear old
 	 * data
@@ -326,8 +346,6 @@ public class Game extends Canvas {
 	private void startGame() {
 		// clear out any existing entities and initalize a new set
 		entities.clear();
-
-		initEntities();
 
 		// blank out any keyboard settings that might exist
 		leftPressed = false;
@@ -372,11 +390,11 @@ public class Game extends Canvas {
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
 				upPressed = true;
 			} // if
-			
-			if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+
+			if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 				System.out.println("Game exited with code _0");
 				System.exit(0);
-			}// if esc=true, close game
+			} // if esc=true, close game
 		} // keyPressed
 
 		public void keyReleased(KeyEvent e) {
@@ -425,8 +443,7 @@ public class Game extends Canvas {
 		} // keyTyped
 
 	} // class KeyInputHandler
-	// gamestate
-
+		// gamestate
 
 	/**
 	 * Main Program
