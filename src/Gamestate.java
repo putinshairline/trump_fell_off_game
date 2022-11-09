@@ -1,6 +1,7 @@
 
 public enum Gamestate {
-	GAME, DEATH;
+	GAME, DEATH, MENU;
 	
-	public static Gamestate state = GAME; 
+	public static Gamestate state = MENU; 
+	public static boolean running = true;
 } // gamestate

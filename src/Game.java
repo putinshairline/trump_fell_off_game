@@ -153,7 +153,7 @@ public class Game extends Canvas {
 		boolean ded = false; // ded?
 		
 		while (Gamestate.running) {
-			
+			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 			
 			// MENU = STATE
 			if (Gamestate.state == Gamestate.MENU) {
@@ -172,7 +172,6 @@ public class Game extends Canvas {
 			
 			//GAME = STATE
 			else if (Gamestate.state == Gamestate.GAME) {
-				Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 				// calc. time since last update, will be used to calculate
 				// entities movement
 				long delta = (long) ((System.currentTimeMillis() - lastLoopTime) * gameSpeed);
@@ -321,7 +320,6 @@ public class Game extends Canvas {
 
 			} // else if GAME = STATE
 			else if(Gamestate.state == Gamestate.DEATH) {
-				Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 				g.setColor(Color.RED);
 				g.drawString("You are Dead", 50, 50);
 				System.out.println("You Are Dead");
