@@ -89,7 +89,7 @@ public class Game extends Canvas {
 
 		Gamestate.running = true;
 		// start the game
-		gameLoop();
+		gameLoop(panel);
 	} // constructor
 
 	/*
@@ -140,7 +140,7 @@ public class Game extends Canvas {
 	 * contents (entities, text) - updates game events - checks input
 	 */
 
-	public void gameLoop() {
+	public void gameLoop(JPanel panel) {
 
 		long lastLoopTime = System.currentTimeMillis();
 
@@ -315,8 +315,15 @@ public class Game extends Canvas {
 
 			} // else if GAME = STATE
 			else if(Gamestate.state == Gamestate.DEATH) {
+				panel.paintComponents(g); // resets the panel to be blank
+				g.setColor(Color.BLACK);
+				g.drawString("You are Dead", (600 - g.getFontMetrics().stringWidth("You are Dead")) / 2, 300);
 				
-				
+				 try {
+			        	Image image = ImageIO.read(getClass().getClassLoader().getResource("background.gif"));
+			        	draw(image.getGraphics());
+			     }
+			     catch (Exception e) { System.out.println(e); }
 			}// death
 			
 			// clear graphics and flip buffer
