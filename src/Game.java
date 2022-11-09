@@ -16,38 +16,27 @@ import java.util.ArrayList;
 public class Game extends Canvas {
 
 	private BufferStrategy strategy; // take advantage of accelerated graphics
-	private boolean waitingForKeyPress = true; // true if game held up until
-	// a key is pressed
+	private boolean waitingForKeyPress = true; // true if game held up until a key is pressed
 	private boolean leftPressed = false; // true if left arrow key currently pressed
 	private boolean rightPressed = false; // true if right arrow key currently pressed
-	private boolean upPressed = false; // true if up arrow key is pressed
 	private boolean cloudCollision = false;
 	private boolean downPressed = false; // true if down arrow key is pressed
-	private final int GAME_WIDTH = 600; // width of game
-	private final int GAME_HEIGHT = 1080; // height of game
 	private int xPos; // x position for enemy entities
 	private int yPos; // x position for enemy entities
 	private int lastBird = 0; // time since last bird spawn in millis
 	private int cloudTime = 0;
 	private float gameSpeed = 1.0F;
 	private int lives; // lives counter
-	//JPanel panel;
 	Life l1;
 	Life l2;
 	Life l3;
-	private boolean ld = true;
-	//Graphics2D g;
 	Death death;
-	// private boolean gameRunning = true;
 	private boolean lifeDrawn = true;
-	private ArrayList<Entity> entities = new ArrayList<>(); // list of entities
-	// in game
-	private ArrayList<Entity> removeEntities = new ArrayList<>(); // list of entities
-	// to remove this loop
+	private ArrayList<Entity> entities = new ArrayList<>(); // list of entities in game
+	private ArrayList<Entity> removeEntities = new ArrayList<>(); // list of entities to remove this loop
 	private Entity player; // the player
 	private double moveSpeed = 600; // hor. vel. of ship (px/s)
 	private String message = ""; // message to display while waiting
-	//private JPanel livePanel;
 
 	/*
 	 * Construct our game and set it running.
@@ -164,11 +153,11 @@ public class Game extends Canvas {
 		boolean ded = false; // ded?
 		
 		while (Gamestate.running) {
-			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+			
 			
 			// MENU = STATE
 			if (Gamestate.state == Gamestate.MENU) {
-
+				Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 				g.setColor(Color.RED);
 				g.fillRect(200, 200, 50, 50);
 				g.setColor(Color.BLACK);
@@ -183,7 +172,7 @@ public class Game extends Canvas {
 			
 			//GAME = STATE
 			else if (Gamestate.state == Gamestate.GAME) {
-
+				Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 				// calc. time since last update, will be used to calculate
 				// entities movement
 				long delta = (long) ((System.currentTimeMillis() - lastLoopTime) * gameSpeed);
@@ -194,7 +183,7 @@ public class Game extends Canvas {
 				// scrolling Background
 				if (back == null) {
 					back = (BufferedImage) (createImage(getWidth(), getHeight()));
-				}
+				}// if
 
 				// creates a buffer to draw to
 				Graphics buffer = back.createGraphics();
@@ -332,6 +321,7 @@ public class Game extends Canvas {
 
 			} // else if GAME = STATE
 			else if(Gamestate.state == Gamestate.DEATH) {
+				Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 				g.setColor(Color.RED);
 				g.drawString("You are Dead", 50, 50);
 				System.out.println("You Are Dead");
@@ -354,7 +344,6 @@ public class Game extends Canvas {
 		leftPressed = false;
 		rightPressed = false;
 		downPressed = false;
-		upPressed = false;
 
 	} // startGame
 
@@ -390,10 +379,6 @@ public class Game extends Canvas {
 				downPressed = true;
 			} // if
 
-			if (e.getKeyCode() == KeyEvent.VK_UP) {
-				upPressed = true;
-			} // if
-
 			if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 				System.out.println("Game exited with code _0");
 				System.exit(0);
@@ -419,9 +404,6 @@ public class Game extends Canvas {
 				downPressed = false;
 			} // if
 
-			if (e.getKeyCode() == KeyEvent.VK_UP) {
-				upPressed = false;
-			} // if
 
 		} // keyReleased
 
