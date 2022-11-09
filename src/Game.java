@@ -110,7 +110,6 @@ public class Game extends Canvas {
 		entities.add(l3);
 
 		lives = 3; // add three lives to player
-		death = new Death(this, "death.jpg", 0, 0, 1080, 600);
 
 	} // initEntities
 
@@ -154,10 +153,11 @@ public class Game extends Canvas {
 		
 		while (Gamestate.running) {
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+			long delta = (long) ((System.currentTimeMillis() - lastLoopTime) * gameSpeed);
+			lastLoopTime = System.currentTimeMillis();
 			
 			// MENU = STATE
 			if (Gamestate.state == Gamestate.MENU) {
-				Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 				g.setColor(Color.RED);
 				g.fillRect(200, 200, 50, 50);
 				g.setColor(Color.BLACK);
@@ -172,12 +172,9 @@ public class Game extends Canvas {
 			
 			//GAME = STATE
 			else if (Gamestate.state == Gamestate.GAME) {
-				// calc. time since last update, will be used to calculate
-				// entities movement
-				long delta = (long) ((System.currentTimeMillis() - lastLoopTime) * gameSpeed);
+				
 				lastBird += delta;
 				cloudTime += delta;
-				lastLoopTime = System.currentTimeMillis();
 
 				// scrolling Background
 				if (back == null) {
@@ -287,9 +284,7 @@ public class Game extends Canvas {
 					g.drawString("Press any key", (600 - g.getFontMetrics().stringWidth("Press any key")) / 2, 300);
 				} // if
 
-				// clear graphics and flip buffer
-				g.dispose();
-				strategy.show();
+				
 
 				player.setHorizontalMovement(0);
 				player.setVerticalMovement(0);
@@ -308,7 +303,7 @@ public class Game extends Canvas {
 				} // elif
 
 				// pause
-				// try { Thread.sleep(100); } catch (Exception e) {}
+				
 				if (lives == 2) {
 					removeEntities.add(l3);
 				} else if (lives == 1) {
@@ -320,12 +315,13 @@ public class Game extends Canvas {
 
 			} // else if GAME = STATE
 			else if(Gamestate.state == Gamestate.DEATH) {
-				g.setColor(Color.RED);
-				g.drawString("You are Dead", 50, 50);
-				System.out.println("You Are Dead");
-				//System.exit(0);
+				
+				
 			}// death
 			
+			// clear graphics and flip buffer
+			g.dispose();
+			strategy.show();
 		} // while (runing)*/
 
 	} // gameLoop
