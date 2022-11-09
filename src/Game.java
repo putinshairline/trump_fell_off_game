@@ -31,12 +31,12 @@ public class Game extends Canvas {
 	private int cloudTime = 0;
 	private float gameSpeed = 1.0F;
 	private int lives; // lives counter
-	JPanel panel;
+	//JPanel panel;
 	Life l1;
 	Life l2;
 	Life l3;
 	private boolean ld = true;
-	Graphics2D g;
+	//Graphics2D g;
 	Death death;
 	// private boolean gameRunning = true;
 	private boolean lifeDrawn = true;
@@ -47,7 +47,7 @@ public class Game extends Canvas {
 	private Entity player; // the player
 	private double moveSpeed = 600; // hor. vel. of ship (px/s)
 	private String message = ""; // message to display while waiting
-	private JPanel livePanel;
+	//private JPanel livePanel;
 
 	/*
 	 * Construct our game and set it running.
@@ -57,7 +57,7 @@ public class Game extends Canvas {
 		JFrame container = new JFrame("Commodore 64 Space Invaders/changed");
 
 		// get hold the content of the frame
-		panel = (JPanel) container.getContentPane();
+		JPanel panel = (JPanel) container.getContentPane();
 		// livePanel = new JPanel();
 
 		// set up the resolution of the game
@@ -95,7 +95,7 @@ public class Game extends Canvas {
 		// create buffer strategy to take advantage of accelerated graphics
 		createBufferStrategy(2);
 		strategy = getBufferStrategy();
-		g = (Graphics2D) strategy.getDrawGraphics();
+		
 		// initialize entities
 
 		Gamestate.running = true;
@@ -164,8 +164,13 @@ public class Game extends Canvas {
 		boolean ded = false; // ded?
 		
 		while (Gamestate.running) {
-			g = (Graphics2D) strategy.getDrawGraphics();
+			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+			
+			// MENU = STATE
 			if (Gamestate.state == Gamestate.MENU) {
+
+				g.setColor(Color.RED);
+				g.fillRect(200, 200, 50, 50);
 				g.setColor(Color.BLACK);
 				g.drawString("menu", 50, 50);
 
@@ -175,7 +180,8 @@ public class Game extends Canvas {
 					Gamestate.state = Gamestate.GAME;
 				} // if
 			} // if
-				// keep loop running until game ends
+			
+			//GAME = STATE
 			else if (Gamestate.state == Gamestate.GAME) {
 
 				// calc. time since last update, will be used to calculate
@@ -184,8 +190,6 @@ public class Game extends Canvas {
 				lastBird += delta;
 				cloudTime += delta;
 				lastLoopTime = System.currentTimeMillis();
-
-				// get graphics context for the accelerated surface and make it black
 
 				// scrolling Background
 				if (back == null) {
@@ -201,8 +205,6 @@ public class Game extends Canvas {
 
 				// draws the image onto the window
 				g.drawImage(back, null, 0, 0);
-
-				// move each entity
 
 				// if enough time has passed to spawn new birds
 				if (lastBird > 1000) {
@@ -330,13 +332,14 @@ public class Game extends Canvas {
 
 			} // else if GAME = STATE
 			else if(Gamestate.state == Gamestate.DEATH) {
+				g.setColor(Color.RED);
+				g.drawString("You are Dead", 50, 50);
 				System.out.println("You Are Dead");
-				System.exit(0);
+				//System.exit(0);
 			}// death
 			
-		} // while (runing)
+		} // while (runing)*/
 
-		death.draw(g);
 	} // gameLoop
 
 	/*
