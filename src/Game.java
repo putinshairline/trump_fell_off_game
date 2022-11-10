@@ -81,6 +81,7 @@ public class Game extends Canvas {
 
 		// add key listener to this canvas
 		addKeyListener(new KeyInputHandler());
+		addMouseListener(new MouseButtonRecogn());
 
 		// request focus so key events are handled by this canvas
 		requestFocus();
@@ -548,8 +549,20 @@ public class Game extends Canvas {
 		} // keyTyped
 
 	} // class KeyInputHandler
-		// gamestate
-
+		
+	private class MouseButtonRecogn extends MouseAdapter {
+		 
+		  @Override
+		  public void mouseClicked(MouseEvent event) {
+		 
+		    if ((event.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
+		 
+		    	System.out.println("Left click detected" + (event.getPoint()));
+		    }
+		 
+		  }
+		}
+	
 	/**
 	 * Main Program
 	 */
