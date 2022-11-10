@@ -19,18 +19,22 @@ public class Game extends Canvas {
 	private boolean waitingForKeyPress = true; // true if game held up until a key is pressed
 	private boolean leftPressed = false; // true if left arrow key currently pressed
 	private boolean rightPressed = false; // true if right arrow key currently pressed
+	private boolean spacePressed = false;
 	private boolean cloudCollision = false;
 	private boolean downPressed = false; // true if down arrow key is pressed
+	private boolean mPressed = false;
+	private boolean sPressed = false;
+	private boolean pPressed = false;
 	private int xPos; // x position for enemy entities
 	private int yPos; // x position for enemy entities
 	private int lastBird = 0; // time since last bird spawn in millis
 	private int cloudTime = 0;
 	private float gameSpeed = 1.0F;
+	private float tempGameSpeed = 0F;
 	private int lives; // lives counter
 	Life l1;
 	Life l2;
 	Life l3;
-	Death death;
 	private boolean lifeDrawn = true;
 	private ArrayList<Entity> entities = new ArrayList<>(); // list of entities in game
 	private ArrayList<Entity> removeEntities = new ArrayList<>(); // list of entities to remove this loop
@@ -84,7 +88,7 @@ public class Game extends Canvas {
 		// create buffer strategy to take advantage of accelerated graphics
 		createBufferStrategy(2);
 		strategy = getBufferStrategy();
-		
+
 		// initialize entities
 
 		Gamestate.running = true;
@@ -150,36 +154,38 @@ public class Game extends Canvas {
 		Background backTwo = new Background(backOne.getImageHeight(), 0); // second copy of background image (used for
 																			// moving background)
 		boolean ded = false; // ded?
-		
+
 		while (Gamestate.running) {
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 			long delta = (long) ((System.currentTimeMillis() - lastLoopTime) * gameSpeed);
 			lastLoopTime = System.currentTimeMillis();
-			
+
 			// MENU = STATE
 			if (Gamestate.state == Gamestate.MENU) {
-				g.setColor(Color.RED);
-				g.fillRect(200, 200, 50, 50);
+				panel.paintComponents(g); // resets the panel to be blank
+				this.setBackground(Color.WHITE);
 				g.setColor(Color.BLACK);
-				g.drawString("menu", 50, 50);
-
+				g.drawString("MENU", (600 - g.getFontMetrics().stringWidth("MENU")) / 2, 300);
+				g.drawString("Press [up] to pause game", (600 - g.getFontMetrics().stringWidth("Press [up] to pause game")) / 2, 500);
+				
 				if (!waitingForKeyPress) {
 					System.out.println("starting");
 					initEntities();
 					Gamestate.state = Gamestate.GAME;
 				} // if
 			} // if
-			
-			//GAME = STATE
+
+			// GAME = STATE
 			else if (Gamestate.state == Gamestate.GAME) {
 				
+				//logic timers
 				lastBird += delta;
 				cloudTime += delta;
 
 				// scrolling Background
 				if (back == null) {
 					back = (BufferedImage) (createImage(getWidth(), getHeight()));
-				}// if
+				} // if
 
 				// creates a buffer to draw to
 				Graphics buffer = back.createGraphics();
@@ -232,7 +238,7 @@ public class Game extends Canvas {
 				// draw all entities
 				for (int i = 0; i < entities.size(); i++) {
 					Entity entity = (Entity) entities.get(i);
-					
+
 					entity.draw(g);
 
 				} // for
@@ -271,8 +277,8 @@ public class Game extends Canvas {
 						} // elif
 
 					} // elif cloud collision
-				}// for
-				
+				} // for
+
 				// remove dead entities
 				entities.removeAll(removeEntities);
 				removeEntities.clear();
@@ -283,8 +289,6 @@ public class Game extends Canvas {
 					g.drawString(message, (1080 - g.getFontMetrics().stringWidth(message)) / 2, 250);
 					g.drawString("Press any key", (600 - g.getFontMetrics().stringWidth("Press any key")) / 2, 300);
 				} // if
-
-				
 
 				player.setHorizontalMovement(0);
 				player.setVerticalMovement(0);
@@ -303,7 +307,13 @@ public class Game extends Canvas {
 				} // elif
 
 				// pause
+				if(pPressed) {
+					tempGameSpeed = gameSpeed;
+					gameSpeed = 0F;
+					Gamestate.state = Gamestate.PAUSE;
+				}// if [p]
 				
+				//lives check
 				if (lives == 2) {
 					removeEntities.add(l3);
 				} else if (lives == 1) {
@@ -314,22 +324,68 @@ public class Game extends Canvas {
 				} // if
 
 			} // else if GAME = STATE
-			else if(Gamestate.state == Gamestate.DEATH) {
+			else if (Gamestate.state == Gamestate.DEATH) {
+				message = "Press [esc] to quit";
 				panel.paintComponents(g); // resets the panel to be blank
+				this.setBackground(Color.WHITE);
 				g.setColor(Color.BLACK);
-				g.drawString("You are Dead", (600 - g.getFontMetrics().stringWidth("You are Dead")) / 2, 300);
+				g.drawString("YOU DIED", (600 - g.getFontMetrics().stringWidth("YOU DIED")) / 2, 300);
+				g.drawString(message, (600 - g.getFontMetrics().stringWidth(message)) / 2, 800);
+				message = "Press [space] to play again";
+				g.drawString(message, (600 - g.getFontMetrics().stringWidth(message)) / 2, 900);
+				message = " Press [m] to access menu";
+				g.drawString(message, (600 - g.getFontMetrics().stringWidth(message)) / 2, 1000);
 				
-				 try {
-			        	Image image = ImageIO.read(getClass().getClassLoader().getResource("background.gif"));
-			        	draw(image.getGraphics());
-			     }
-			     catch (Exception e) { System.out.println(e); }
-			}// death
+				try {
+					BufferedImage image = ImageIO.read(new File("bin/deadBird.png"));
+					g.drawImage(image, 145, 400, null);
+				} catch (IOException e) {e.printStackTrace();}
+				
+				//check for new actions
+				if(spacePressed) {
+					initEntities();
+					Gamestate.state = Gamestate.GAME;
+				}// if space
+				else if(mPressed) {
+					Gamestate.state = Gamestate.MENU;
+					waitingForKeyPress = true;
+				} //elif menu
+				else if(sPressed) {
+					Gamestate.state = Gamestate.STORE;
+				} // elif store
+				
+			} // DEATH = STATE
+			else if (Gamestate.state == Gamestate.STORE) {
+				panel.paintComponents(g); // resets the panel to be blank
+				this.setBackground(Color.WHITE);
+				g.setColor(Color.BLACK);
+				g.drawString("STORE", (600 - g.getFontMetrics().stringWidth("STORE")) / 2, 300);
+				g.drawString("Press [space] to init a new game", (600 - g.getFontMetrics().stringWidth("Press [space] to init a new game")) / 2, 500);
+				
+				//check for new actions
+				if(spacePressed) {
+					initEntities();
+					Gamestate.state = Gamestate.GAME;
+				}// if space
+			} //elif STORE = STATE
+			else if(Gamestate.state == Gamestate.PAUSE) {
+				panel.paintComponents(g); // resets the panel to be blank
+				this.setBackground(Color.WHITE);
+				g.setColor(Color.BLACK);
+				g.drawString("GAME IS PAUSED", (600 - g.getFontMetrics().stringWidth("GAME IS PAUSED")) / 2, 300);
+				g.drawString("Press [up] to unpause", (600 - g.getFontMetrics().stringWidth("Press [up] to unpause")) / 2, 500);
+				//check for new actions
+				if(pPressed) {
+					gameSpeed = tempGameSpeed;
+					Gamestate.state = Gamestate.GAME;
+				}// if [p]
+			}// elif PAUSE = STATE
 			
 			// clear graphics and flip buffer
 			g.dispose();
 			strategy.show();
-		} // while (runing)*/
+			
+		} // while (runing)
 
 	} // gameLoop
 
@@ -345,7 +401,7 @@ public class Game extends Canvas {
 		leftPressed = false;
 		rightPressed = false;
 		downPressed = false;
-
+		spacePressed = false;
 	} // startGame
 
 	/*
@@ -384,6 +440,22 @@ public class Game extends Canvas {
 				System.out.println("Game exited with code _0");
 				System.exit(0);
 			} // if esc=true, close game
+			
+			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+				spacePressed = true;
+			} // if esc=true, close game
+			
+			if (e.getKeyCode() == KeyEvent.VK_M) {
+				mPressed = true;
+			} // if esc=true, close game
+			
+			if (e.getKeyCode() == KeyEvent.VK_S) {
+				sPressed = true;
+			} // if esc=true, close game
+			
+			if (e.getKeyCode() == KeyEvent.VK_UP) {
+				pPressed = true;
+			} // if esc=true, close game
 		} // keyPressed
 
 		public void keyReleased(KeyEvent e) {
@@ -404,8 +476,22 @@ public class Game extends Canvas {
 			if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 				downPressed = false;
 			} // if
-
-
+			
+			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+				spacePressed = false;
+			} // if esc=true, close game
+			
+			if (e.getKeyCode() == KeyEvent.VK_M) {
+				mPressed = false;
+			} // if esc=true, close game
+			
+			if (e.getKeyCode() == KeyEvent.VK_S) {
+				sPressed = false;
+			} // if esc=true, close game
+			
+			if (e.getKeyCode() == KeyEvent.VK_UP) {
+				pPressed = false;
+			} // if esc=true, close game
 		} // keyReleased
 
 		public void keyTyped(KeyEvent e) {
