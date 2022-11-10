@@ -20,7 +20,7 @@ public abstract class Entity {
 	protected Sprite sprite; // this entity's sprite
 	protected double dx; // horizontal speed (px/s) + -> right
 	protected double dy; // vertical speed (px/s) + -> down
-
+	public int coins;
 	private Rectangle me = new Rectangle(); // bounding rectangle of
 											// this entity
 	private Rectangle him = new Rectangle(); // bounding rect. of other

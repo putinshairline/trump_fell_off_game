@@ -202,7 +202,7 @@ public class Game extends Canvas {
 					lastBird = 0; // reset counter
 
 					// spawn 6 bird entities if enough time has passed
-					for (int i = 0; i < 6; i++) {
+					for (int i = 0; i < 5; i++) {
 						xPos = (int) ((Math.random() * 110) + 1) * 5; // x position for enemy entities
 						yPos = (int) ((Math.random() * 230) + 194) * 5; // x position for enemy entities
 						Entity bird = new BirdEntity(this, "sprites/bird.gif", xPos, yPos, 20, 20);
@@ -210,20 +210,28 @@ public class Game extends Canvas {
 					} // for
 
 					// spawn 4 cloud entities if enough time has passed
-					for (int i = 0; i < 4; i++) {
+					for (int i = 0; i < 3; i++) {
 						xPos = (int) ((Math.random() * 110) + 1) * 5; // x position for enemy entities
 						yPos = (int) ((Math.random() * 230) + 194) * 5; // x position for enemy entities
 						Entity cloud = new CloudEntity(this, "sprites/cloud.gif", xPos, yPos, 70, 30);
 						entities.add(cloud);
+					} // for
+					
+					// spawn 4 coin entities if enough time has passed
+					for (int i = 0; i < 4; i++) {
+						xPos = (int) ((Math.random() * 110) + 1) * 5; // x position for enemy entities
+						yPos = (int) ((Math.random() * 230) + 194) * 5; // x position for enemy entities
+						Entity coin = new CoinEntity(this, "sprites/coin.png", xPos, yPos,  30, 30);
+						entities.add(coin);
 					} // for
 				} // if
 
 				// sets enemies to move up
 				for (int i = 0; i < entities.size(); i++) {
 					Entity entity = (Entity) entities.get(i);
-					if (entity instanceof BirdEntity || entity instanceof CloudEntity && downPressed) {
+					if (entity instanceof BirdEntity || entity instanceof CloudEntity || entity instanceof CoinEntity && downPressed) {
 						entity.setVerticalMovement(-800);
-					} else if (entity instanceof BirdEntity || entity instanceof CloudEntity && !downPressed) {
+					} else if (entity instanceof BirdEntity || entity instanceof CloudEntity || entity instanceof CoinEntity && !downPressed) {
 						entity.setVerticalMovement(-600);
 					} // else if
 
@@ -242,17 +250,41 @@ public class Game extends Canvas {
 					entity.draw(g);
 
 				} // for
+				
+				
 
-				// if player collided with a bird, -- lives left
+				//display coins
+				g.setColor(Color.WHITE);
+				g.setFont(new Font("SansSerif", Font.BOLD, 12));
+				g.drawString("Coins collected: " + player.coins, 480, 30);
+				Image img = null;
+				try {
+					img = ImageIO.read(getClass().getClassLoader().getResource("sprites/coin.png"));
+				} catch (IOException e) {e.printStackTrace();}
+				g.drawImage(img, 450, 10, null);
+
+				// for logic
 				for (int i = 0; i < entities.size(); i++) {
+					
+					//if coin
+					if (entities.get(i) instanceof CoinEntity) {
+						CoinEntity coin = (CoinEntity) entities.get(i);
+						if(player.collidesWith(coin)) {
+							removeEntities.add(coin);
+							player.coins++;
+							System.out.println(player.coins);
+						}// add coins if
+					}// if
+					
+					//if bird
 					if (entities.get(i) instanceof BirdEntity) {
 
 						BirdEntity enemy = (BirdEntity) entities.get(i);
 						if (player.collidesWith(enemy)) {
 							try {
 								Thread.sleep(20);
-							} catch (Exception e) {
-							}
+							} catch (Exception e) {}
+							
 							removeEntities.add(enemy);
 							lives--;
 							System.out.println(lives + " lives left");
@@ -305,7 +337,7 @@ public class Game extends Canvas {
 					gameSpeed = 1.0F;
 					player.setVerticalMovement(-400);
 				} // elif
-
+				
 				// pause
 				if(pPressed) {
 					tempGameSpeed = gameSpeed;
@@ -329,6 +361,7 @@ public class Game extends Canvas {
 				panel.paintComponents(g); // resets the panel to be blank
 				this.setBackground(Color.WHITE);
 				g.setColor(Color.BLACK);
+				g.drawString("Coins collected: " + player.coins, (600 - g.getFontMetrics().stringWidth("Coins collected: " + player.coins)) / 2, 100);
 				g.drawString("YOU DIED", (600 - g.getFontMetrics().stringWidth("YOU DIED")) / 2, 300);
 				g.drawString(message, (600 - g.getFontMetrics().stringWidth(message)) / 2, 800);
 				message = "Press [space] to play again";
