@@ -164,16 +164,21 @@ public class Game extends Canvas {
 			// MENU = STATE
 			if (Gamestate.state == Gamestate.MENU) {
 				panel.paintComponents(g); // resets the panel to be blank
-				this.setBackground(Color.WHITE);
+				this.setBackground(Color.DARK_GRAY);
 				g.setColor(Color.BLACK);
 				g.drawString("MENU", (600 - g.getFontMetrics().stringWidth("MENU")) / 2, 300);
 				g.drawString("Press [up] to pause game", (600 - g.getFontMetrics().stringWidth("Press [up] to pause game")) / 2, 500);
 				
-				if (!waitingForKeyPress) {
+				if(sPressed) {
+					Gamestate.state = Gamestate.STORE;
+					waitingForKeyPress = true;
+				} // elif store
+				else if (!waitingForKeyPress) {
 					System.out.println("starting");
 					initEntities();
 					Gamestate.state = Gamestate.GAME;
 				} // if
+				
 			} // if
 
 			// GAME = STATE
@@ -360,7 +365,7 @@ public class Game extends Canvas {
 			else if (Gamestate.state == Gamestate.DEATH) {
 				message = "Press [esc] to quit";
 				panel.paintComponents(g); // resets the panel to be blank
-				this.setBackground(Color.WHITE);
+				this.setBackground(Color.DARK_GRAY);
 				g.setColor(Color.BLACK);
 				g.drawString("Coins collected: " + player.coins, (600 - g.getFontMetrics().stringWidth("Coins collected: " + player.coins)) / 2, 100);
 				g.drawString("YOU DIED", (600 - g.getFontMetrics().stringWidth("YOU DIED")) / 2, 300);
@@ -391,20 +396,54 @@ public class Game extends Canvas {
 			} // DEATH = STATE
 			else if (Gamestate.state == Gamestate.STORE) {
 				panel.paintComponents(g); // resets the panel to be blank
-				this.setBackground(Color.WHITE);
+				this.setBackground(Color.darkGray);
+				
+				//display coins
 				g.setColor(Color.BLACK);
+				g.setFont(new Font("SansSerif", Font.BOLD, 12));
+				g.drawString("Coins : " + player.coins, 490, 30);
+				Image img = null;
+				try {
+					img = ImageIO.read(getClass().getClassLoader().getResource("sprites/coin.png"));
+					g.drawImage(img, 450, 10, null);
+				} catch (IOException e) {e.printStackTrace();}
+				
+				
+				//draw menu message
 				g.drawString("STORE", (600 - g.getFontMetrics().stringWidth("STORE")) / 2, 300);
-				g.drawString("Press [space] to init a new game", (600 - g.getFontMetrics().stringWidth("Press [space] to init a new game")) / 2, 500);
+				g.drawString("Press [m] to return to menu", (600 - g.getFontMetrics().stringWidth("Press [m] to return to menu")) / 2, 900);
+				
+				//force field thing power-up
+				g.drawString("Super Saiyan: 20", 75, 550);
+				try {
+					BufferedImage image = ImageIO.read(new File("bin/sprites/saiyanPlayer.png"));
+					g.drawImage(image, 95, 565, null);
+				} catch (IOException e) {e.printStackTrace();}
+				
+				//coin doubler thing power-up
+				g.drawString("Coin Doubler: 40", 250, 550);
+				try {
+					BufferedImage image = ImageIO.read(new File("bin/sprites/2XCoins.png"));
+					g.drawImage(image, 270, 565, null);
+				} catch (IOException e) {e.printStackTrace();}
+				
+				//+1 life thing power-up
+				g.drawString("+1 Life: 50", 425, 550);
+				try {
+					BufferedImage image = ImageIO.read(new File("bin/sprites/heart.gif"));
+					g.drawImage(image, 435, 565, null);
+				} catch (IOException e) {e.printStackTrace();}
 				
 				//check for new actions
-				if(spacePressed) {
-					initEntities();
-					Gamestate.state = Gamestate.GAME;
-				}// if space
+				if(mPressed) {
+					Gamestate.state = Gamestate.MENU;
+					waitingForKeyPress = true;
+				}// if [m]
+				
 			} //elif STORE = STATE
 			else if(Gamestate.state == Gamestate.PAUSE) {
 				panel.paintComponents(g); // resets the panel to be blank
-				this.setBackground(Color.WHITE);
+				this.setBackground(Color.DARK_GRAY);
 				g.setColor(Color.BLACK);
 				g.drawString("GAME IS PAUSED", (600 - g.getFontMetrics().stringWidth("GAME IS PAUSED")) / 2, 300);
 				g.drawString("Press [up] to unpause", (600 - g.getFontMetrics().stringWidth("Press [up] to unpause")) / 2, 500);
