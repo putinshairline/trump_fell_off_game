@@ -25,10 +25,12 @@ public class Game extends Canvas {
 	private boolean mPressed = false;
 	private boolean sPressed = false;
 	private boolean pPressed = false;
+	private boolean aPressed = false;
 	private int xPos; // x position for enemy entities
 	private int yPos; // x position for enemy entities
 	private int lastBird = 0; // time since last bird spawn in millis
 	private int cloudTime = 0;
+	private boolean keyP = true;
 	private float gameSpeed = 1.0F;
 	private float tempGameSpeed = 0F;
 	private int lives; // lives counter
@@ -153,7 +155,7 @@ public class Game extends Canvas {
 		BufferedImage back = null; // background image
 		Background backOne = new Background(); // first copy of background image (used for moving background)
 		Background backTwo = new Background(backOne.getImageHeight(), 0); // second copy of background image (used for
-																			// moving background)
+		int timer = 0;																	// moving background)
 		boolean ded = false; // ded?
 
 		while (Gamestate.running) {
@@ -171,15 +173,15 @@ public class Game extends Canvas {
 				
 				if(sPressed) {
 					Gamestate.state = Gamestate.STORE;
-					waitingForKeyPress = true;
-				} // elif store
+				} // if store
 				else if (!waitingForKeyPress) {
 					System.out.println("starting");
 					initEntities();
 					Gamestate.state = Gamestate.GAME;
+					
 				} // if
 				
-			} // if
+			} // MENU = STATE
 
 			// GAME = STATE
 			else if (Gamestate.state == Gamestate.GAME) {
@@ -252,14 +254,10 @@ public class Game extends Canvas {
 				// draw all entities
 				for (int i = 0; i < entities.size(); i++) {
 					Entity entity = (Entity) entities.get(i);
-
 					entity.draw(g);
-
 				} // for
 				
-				
-
-				//display coins
+				//display coin info
 				g.setColor(Color.WHITE);
 				g.setFont(new Font("SansSerif", Font.BOLD, 12));
 				g.drawString("Coins collected: " + player.coins, 480, 30);
@@ -278,7 +276,6 @@ public class Game extends Canvas {
 						if(player.collidesWith(coin)) {
 							removeEntities.add(coin);
 							player.coins++;
-							System.out.println(player.coins);
 						}// add coins if
 					}// if
 					
@@ -320,13 +317,6 @@ public class Game extends Canvas {
 				// remove dead entities
 				entities.removeAll(removeEntities);
 				removeEntities.clear();
-
-				// if waiting for "any key press", draw message
-				if (waitingForKeyPress) {
-					g.setColor(Color.white);
-					g.drawString(message, (1080 - g.getFontMetrics().stringWidth(message)) / 2, 250);
-					g.drawString("Press any key", (600 - g.getFontMetrics().stringWidth("Press any key")) / 2, 300);
-				} // if
 
 				player.setHorizontalMovement(0);
 				player.setVerticalMovement(0);
@@ -395,26 +385,19 @@ public class Game extends Canvas {
 				
 			} // DEATH = STATE
 			else if (Gamestate.state == Gamestate.STORE) {
+				
+				timer += (int) delta;
 				panel.paintComponents(g); // resets the panel to be blank
 				this.setBackground(Color.darkGray);
 				
-				//display coins
-				g.setColor(Color.BLACK);
-				g.setFont(new Font("SansSerif", Font.BOLD, 12));
-				g.drawString("Coins : " + player.coins, 490, 30);
-				Image img = null;
-				try {
-					img = ImageIO.read(getClass().getClassLoader().getResource("sprites/coin.png"));
-					g.drawImage(img, 450, 10, null);
-				} catch (IOException e) {e.printStackTrace();}
-				
-				
+				updateCoins(g);
+			
 				//draw menu message
 				g.drawString("STORE", (600 - g.getFontMetrics().stringWidth("STORE")) / 2, 300);
 				g.drawString("Press [m] to return to menu", (600 - g.getFontMetrics().stringWidth("Press [m] to return to menu")) / 2, 900);
 				
 				//force field thing power-up
-				g.drawString("Super Saiyan: 20", 75, 550);
+				g.drawString("Super Saiyan [a]: 20", 75, 550);
 				try {
 					BufferedImage image = ImageIO.read(new File("bin/sprites/saiyanPlayer.png"));
 					g.drawImage(image, 95, 565, null);
@@ -439,7 +422,23 @@ public class Game extends Canvas {
 					Gamestate.state = Gamestate.MENU;
 					waitingForKeyPress = true;
 				}// if [m]
-				
+				if(aPressed) {
+					if(player.coins >= 2) {
+						if(timer > 3000) {
+							timer = 0;
+							g.drawString("Succesfully purchased Super Saiyan!", 
+									(600 - g.getFontMetrics().stringWidth("Succesfully purchased Super Saiyan!")) / 2, 700);
+							player.coins -= 2;
+						}
+					}// if
+					else {
+						if(timer > 3000) {
+							timer = 0;
+						g.drawString("Not enough coins to purchase Super Saiyan", 
+								(600 - g.getFontMetrics().stringWidth("Not enough coins to purchase Super Saiyan")) / 2, 700);
+						}
+					}// else
+				}// if want to buy SS
 			} //elif STORE = STATE
 			else if(Gamestate.state == Gamestate.PAUSE) {
 				panel.paintComponents(g); // resets the panel to be blank
@@ -461,6 +460,18 @@ public class Game extends Canvas {
 		} // while (runing)
 
 	} // gameLoop
+
+	private void updateCoins(Graphics2D g) {
+		//display coins
+		g.setColor(Color.BLACK);
+		g.setFont(new Font("SansSerif", Font.BOLD, 12));
+		g.drawString("Coins : " + player.coins, 490, 30);
+		Image img = null;
+		try {
+			img = ImageIO.read(getClass().getClassLoader().getResource("sprites/coin.png"));
+			g.drawImage(img, 450, 10, null);
+		} catch (IOException e) {e.printStackTrace();}
+	}// coin update
 
 	/*
 	 * startGame input: none output: none purpose: start a fresh game, clear old
@@ -529,6 +540,10 @@ public class Game extends Canvas {
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
 				pPressed = true;
 			} // if esc=true, close game
+			
+			if (e.getKeyCode() == KeyEvent.VK_A) {
+				aPressed = true;
+			} // if esc=true, close game
 		} // keyPressed
 
 		public void keyReleased(KeyEvent e) {
@@ -564,6 +579,10 @@ public class Game extends Canvas {
 			
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
 				pPressed = false;
+			} // if esc=true, close game
+			
+			if (e.getKeyCode() == KeyEvent.VK_A) {
+				aPressed = false;
 			} // if esc=true, close game
 		} // keyReleased
 
