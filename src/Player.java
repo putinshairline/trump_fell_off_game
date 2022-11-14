@@ -1,8 +1,8 @@
 
 public class Player extends Entity{
-
+	public static boolean saiyan = false;
+	public static boolean canBeSaiyan = false;
 	private Game game;
-	
 	public Player(Game g, String r, int newX, int newY, int newH , int newW) {
 		super(r, newX, newY, newH, newW);
 		game = g;
@@ -16,10 +16,20 @@ public class Player extends Entity{
 	
 	public void move(long delta) {
 		if(dx < 0) {
-			super.sprite = (SpriteStore.get()).getSprite("sprites/playerL.gif");
+			if(saiyan) {
+				super.sprite = (SpriteStore.get()).getSprite("sprites/playerLS.gif");
+			} //if
+			else {
+				super.sprite = (SpriteStore.get()).getSprite("sprites/playerL.gif");
+			}// else
 		}// if
 		if(dx > 0) {
-			super.sprite = (SpriteStore.get()).getSprite("sprites/playerR.gif");
+			if(saiyan) {
+				super.sprite = (SpriteStore.get()).getSprite("sprites/playerRS.gif");
+			} //if
+			else {
+				super.sprite = (SpriteStore.get()).getSprite("sprites/playerR.gif");
+			}//else
 		} // if
 		// stop at left side of screenF
 		if ((dx < 0) && (x < -10)) {

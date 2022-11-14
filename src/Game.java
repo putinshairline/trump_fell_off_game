@@ -26,20 +26,24 @@ public class Game extends Canvas {
 	private boolean sPressed = false;
 	private boolean pPressed = false;
 	private boolean aPressed = false;
+	
+	private boolean cPressed = false;
+	private int addLives = 0; // additional lives for the player (bouht through the upgrades store)
+	private int coinsTemp = 0;
 	private int xPos; // x position for enemy entities
 	private int yPos; // x position for enemy entities
 	private int lastBird = 0; // time since last bird spawn in millis
 	private int cloudTime = 0;
-	private boolean keyP = true;
+	private int isSaiyan = 0;
 	private float gameSpeed = 1.0F;
 	private float tempGameSpeed = 0F;
 	private int lives; // lives counter
 	Life l1;
 	Life l2;
 	Life l3;
-	private boolean lifeDrawn = true;
 	private ArrayList<Entity> entities = new ArrayList<>(); // list of entities in game
 	private ArrayList<Entity> removeEntities = new ArrayList<>(); // list of entities to remove this loop
+	private ArrayList<Life> lifeEntities = new ArrayList<>(); // list of entities in game
 	private Entity player; // the player
 	private double moveSpeed = 600; // hor. vel. of ship (px/s)
 	private String message = ""; // message to display while waiting
@@ -105,18 +109,23 @@ public class Game extends Canvas {
 	 * entities in the game.
 	 */
 	private void initEntities() {
+		int hx = 0; // x pos for hearts, var so it can be incremented
+		
+		//add player
 		player = new Player(this, "sprites/playerR.gif", 260, 100, 40, 20);
 		entities.add(player);
-
-		// add three hearts to the screen
-		l1 = new Life(this, "sprites/heart.gif", 0, 1, 40, 40);
-		entities.add(l1);
-		l2 = new Life(this, "sprites/heart.gif", 40, 1, 40, 40);
-		entities.add(l2);
-		l3 = new Life(this, "sprites/heart.gif", 80, 1, 40, 40);
-		entities.add(l3);
-
-		lives = 3; // add three lives to player
+		
+		//add and reset the temporary coins
+		if(coinsTemp != 0) {
+			player.coins += coinsTemp;
+			coinsTemp = 0;
+		}// if
+		
+		//add lives to player
+		for(int i = 0; i < 3 + lifeEntities.size(); i++) {
+			lifeEntities.add(new Life(this, "sprites/heart.gif", hx, 1, 40, 40));
+			hx += 40;
+		}// for
 
 	} // initEntities
 
@@ -155,8 +164,6 @@ public class Game extends Canvas {
 		BufferedImage back = null; // background image
 		Background backOne = new Background(); // first copy of background image (used for moving background)
 		Background backTwo = new Background(backOne.getImageHeight(), 0); // second copy of background image (used for
-		int timer = 0;																	// moving background)
-		boolean ded = false; // ded?
 
 		while (Gamestate.running) {
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
@@ -185,11 +192,10 @@ public class Game extends Canvas {
 
 			// GAME = STATE
 			else if (Gamestate.state == Gamestate.GAME) {
-				
 				//logic timers
 				lastBird += delta;
 				cloudTime += delta;
-
+				
 				// scrolling Background
 				if (back == null) {
 					back = (BufferedImage) (createImage(getWidth(), getHeight()));
@@ -250,11 +256,29 @@ public class Game extends Canvas {
 
 					entity.move(delta);
 				} // for
-
+				
+				// deals with super saiyan timing logic
+				if(Player.canBeSaiyan && sPressed) {
+					Player.saiyan = true;
+				}// if
+				if(Player.saiyan) {
+					isSaiyan += delta;
+				}// if
+				if(isSaiyan > 3500) {
+					isSaiyan = 0;
+					Player.saiyan = false;
+				}//if 
+				
 				// draw all entities
 				for (int i = 0; i < entities.size(); i++) {
 					Entity entity = (Entity) entities.get(i);
 					entity.draw(g);
+				} // for
+				
+				// draw all entities
+				for (int i = 0; i < lifeEntities.size(); i++) {
+					Life life = (Life) lifeEntities.get(i);
+					life.draw(g);
 				} // for
 				
 				//display coin info
@@ -284,13 +308,11 @@ public class Game extends Canvas {
 
 						BirdEntity enemy = (BirdEntity) entities.get(i);
 						if (player.collidesWith(enemy)) {
-							try {
-								Thread.sleep(20);
-							} catch (Exception e) {}
-							
-							removeEntities.add(enemy);
-							lives--;
-							System.out.println(lives + " lives left");
+							if(!Player.saiyan) {
+								removeEntities.add(enemy);
+								lifeEntities.remove(lifeEntities.size());
+								System.out.println(lifeEntities.size() + " lives left");
+							}// if player is saiyan, he is invincible
 						} // if birdEntity collides with player
 
 					} // if bird entity
@@ -299,11 +321,11 @@ public class Game extends Canvas {
 					if (entities.get(i) instanceof CloudEntity && player.collidesWith(entities.get(i))) {
 						cloudCollision = true;
 						cloudTime = 0;
-						gameSpeed = 0.9F;
+						gameSpeed = 0.4F;
 					} // if
 					else if (cloudCollision) {
 						if (cloudTime < 500) {
-							gameSpeed = 0.9F;
+							gameSpeed = 0.4F;
 						} // if
 						else if (cloudTime > 500) {
 							cloudCollision = false;
@@ -342,17 +364,15 @@ public class Game extends Canvas {
 				}// if [p]
 				
 				//lives check
-				if (lives == 2) {
-					removeEntities.add(l3);
-				} else if (lives == 1) {
-					removeEntities.add(l2);
-				} else if (lives == 0) {
+				if (lifeEntities.isEmpty()) {
+					coinsTemp += player.coins;
 					removeEntities.addAll(entities);
 					Gamestate.state = Gamestate.DEATH;
 				} // if
 
 			} // else if GAME = STATE
 			else if (Gamestate.state == Gamestate.DEATH) {
+				
 				message = "Press [esc] to quit";
 				panel.paintComponents(g); // resets the panel to be blank
 				this.setBackground(Color.DARK_GRAY);
@@ -385,8 +405,6 @@ public class Game extends Canvas {
 				
 			} // DEATH = STATE
 			else if (Gamestate.state == Gamestate.STORE) {
-				
-				timer += (int) delta;
 				panel.paintComponents(g); // resets the panel to be blank
 				this.setBackground(Color.darkGray);
 				
@@ -417,6 +435,7 @@ public class Game extends Canvas {
 					g.drawImage(image, 435, 565, null);
 				} catch (IOException e) {e.printStackTrace();}
 				
+				
 				//check for new actions
 				if(mPressed) {
 					Gamestate.state = Gamestate.MENU;
@@ -424,21 +443,35 @@ public class Game extends Canvas {
 				}// if [m]
 				if(aPressed) {
 					if(player.coins >= 2) {
-						if(timer > 3000) {
-							timer = 0;
 							g.drawString("Succesfully purchased Super Saiyan!", 
 									(600 - g.getFontMetrics().stringWidth("Succesfully purchased Super Saiyan!")) / 2, 700);
 							player.coins -= 2;
-						}
+							coinsTemp -= 2;
+							Player.canBeSaiyan = true;
+							Gamestate.state = Gamestate.MENU;
 					}// if
 					else {
-						if(timer > 3000) {
-							timer = 0;
+						Player.canBeSaiyan = false;
 						g.drawString("Not enough coins to purchase Super Saiyan", 
 								(600 - g.getFontMetrics().stringWidth("Not enough coins to purchase Super Saiyan")) / 2, 700);
-						}
 					}// else
-				}// if want to buy SS
+				}// if want to buy SS ([a])
+				if(cPressed) {
+					if(player.coins >= 5) {
+							g.drawString("Succesfully purchased another life!", 
+									(600 - g.getFontMetrics().stringWidth("Succesfully purchased another life!")) / 2, 700);
+							player.coins -= 5;
+							coinsTemp -= 5;
+							addLives++;
+							System.out.println("Additional lives: " + addLives);
+							Gamestate.state = Gamestate.MENU;
+					}// if
+					else {
+						Player.canBeSaiyan = false;
+						g.drawString("Not enough coins to purchase another life", 
+								(600 - g.getFontMetrics().stringWidth("Not enough coins to purchase another life")) / 2, 700);
+					}// else
+				}// if want to buy new life ([c])
 			} //elif STORE = STATE
 			else if(Gamestate.state == Gamestate.PAUSE) {
 				panel.paintComponents(g); // resets the panel to be blank
@@ -446,6 +479,7 @@ public class Game extends Canvas {
 				g.setColor(Color.BLACK);
 				g.drawString("GAME IS PAUSED", (600 - g.getFontMetrics().stringWidth("GAME IS PAUSED")) / 2, 300);
 				g.drawString("Press [up] to unpause", (600 - g.getFontMetrics().stringWidth("Press [up] to unpause")) / 2, 500);
+				
 				//check for new actions
 				if(pPressed) {
 					gameSpeed = tempGameSpeed;
@@ -456,7 +490,7 @@ public class Game extends Canvas {
 			// clear graphics and flip buffer
 			g.dispose();
 			strategy.show();
-			
+			try {Thread.sleep(2);} catch(Exception e) {}
 		} // while (runing)
 
 	} // gameLoop
@@ -480,14 +514,20 @@ public class Game extends Canvas {
 	private void startGame() {
 		// clear out any existing entities and initalize a new set
 		entities.clear();
+		allKeysFalse();
+	} // startGame
 
+	public void allKeysFalse() {
 		// blank out any keyboard settings that might exist
 		leftPressed = false;
 		rightPressed = false;
 		downPressed = false;
 		spacePressed = false;
-	} // startGame
-
+		sPressed = false;
+		mPressed = false;
+		pPressed = false;
+		aPressed = false;
+	}// resets all the keys
 	/*
 	 * inner class KeyInputHandler handles keyboard input from the user
 	 */
@@ -544,6 +584,10 @@ public class Game extends Canvas {
 			if (e.getKeyCode() == KeyEvent.VK_A) {
 				aPressed = true;
 			} // if esc=true, close game
+			
+			if (e.getKeyCode() == KeyEvent.VK_C) {
+				cPressed = true;
+			} // if esc=true, close game
 		} // keyPressed
 
 		public void keyReleased(KeyEvent e) {
@@ -583,6 +627,10 @@ public class Game extends Canvas {
 			
 			if (e.getKeyCode() == KeyEvent.VK_A) {
 				aPressed = false;
+			} // if esc=true, close game
+			
+			if (e.getKeyCode() == KeyEvent.VK_C) {
+				cPressed = false;
 			} // if esc=true, close game
 		} // keyReleased
 
