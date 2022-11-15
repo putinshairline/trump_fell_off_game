@@ -121,12 +121,14 @@ public class Game extends Canvas {
 			coinsTemp = 0;
 		}// if
 		
+		
 		//add lives to player
-		for(int i = 0; i < 3 + lifeEntities.size(); i++) {
+		for(int i = 0; i < (3 + addLives); i++) {
+			System.out.println("INIT_HEARTS_" + i);
 			lifeEntities.add(new Life(this, "sprites/heart.gif", hx, 1, 40, 40));
 			hx += 40;
 		}// for
-
+ 
 	} // initEntities
 
 	/*
@@ -310,7 +312,7 @@ public class Game extends Canvas {
 						if (player.collidesWith(enemy)) {
 							if(!Player.saiyan) {
 								removeEntities.add(enemy);
-								lifeEntities.remove(lifeEntities.size());
+								lifeEntities.remove(lifeEntities.size()-1);
 								System.out.println(lifeEntities.size() + " lives left");
 							}// if player is saiyan, he is invincible
 						} // if birdEntity collides with player
@@ -422,14 +424,14 @@ public class Game extends Canvas {
 				} catch (IOException e) {e.printStackTrace();}
 				
 				//coin doubler thing power-up
-				g.drawString("Coin Doubler: 40", 250, 550);
+				g.drawString("Coin Doubler: 40 [b]", 250, 550);
 				try {
 					BufferedImage image = ImageIO.read(new File("bin/sprites/2XCoins.png"));
 					g.drawImage(image, 270, 565, null);
 				} catch (IOException e) {e.printStackTrace();}
 				
 				//+1 life thing power-up
-				g.drawString("+1 Life: 50", 425, 550);
+				g.drawString("+1 Life: 50 [c]", 425, 550);
 				try {
 					BufferedImage image = ImageIO.read(new File("bin/sprites/heart.gif"));
 					g.drawImage(image, 435, 565, null);
