@@ -163,12 +163,33 @@ public class Game extends Canvas {
 		BufferedImage back = null; // background image
 		Background backOne = new Background(); // first copy of background image (used for moving background)
 		Background backTwo = new Background(backOne.getImageHeight(), 0); // second copy of background image (used for
-
+		long nextSecond = System.currentTimeMillis() + 1000;
+		int frameInLastSecond = 0;
+		int framesInCurrentSecond = 0;
+		int timer = 0;
+		
 		while (Gamestate.running) {
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 			long delta = (long) ((System.currentTimeMillis() - lastLoopTime) * gameSpeed);
 			lastLoopTime = System.currentTimeMillis();
-
+			timer += delta;
+			
+			//fps stuff
+			long currentTime = System.currentTimeMillis();
+			if (currentTime > nextSecond) {
+				nextSecond += 1000;
+				frameInLastSecond = framesInCurrentSecond;
+				framesInCurrentSecond = 0;
+			}
+			framesInCurrentSecond++;
+			
+			//fps isplay
+			if(timer >= 1000) {
+				timer = 0;
+				System.out.println(frameInLastSecond + " fps");
+			}
+			
+			
 			// MENU = STATE
 			if (Gamestate.state == Gamestate.MENU) {
 				panel.paintComponents(g); // resets the panel to be blank
@@ -500,6 +521,7 @@ public class Game extends Canvas {
 				g.drawString("GAME IS PAUSED", (600 - g.getFontMetrics().stringWidth("GAME IS PAUSED")) / 2, 300);
 				g.drawString("Press [up] to unpause", (600 - g.getFontMetrics().stringWidth("Press [up] to unpause")) / 2, 500);
 				
+				try {Thread.sleep(20);}catch(Exception e) {};
 				//check for new actions
 				if(pPressed) {
 					gameSpeed = tempGameSpeed;
@@ -510,7 +532,7 @@ public class Game extends Canvas {
 			// clear graphics and flip buffer
 			g.dispose();
 			strategy.show();
-			try {Thread.sleep(2);} catch(Exception e) {}
+			
 		} // while (runing)
 
 	} // gameLoop

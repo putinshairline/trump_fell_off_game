@@ -23,6 +23,7 @@ public class Player extends Entity{
 				super.sprite = (SpriteStore.get()).getSprite("sprites/playerL.gif");
 			}// else
 		}// if
+		
 		if(dx > 0) {
 			if(saiyan) {
 				super.sprite = (SpriteStore.get()).getSprite("sprites/playerRS.gif");
