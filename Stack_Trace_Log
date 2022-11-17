@@ -1,8 +1,0 @@
-
-//tried to run infinite background in oiginal game.java
-java.lang.IllegalArgumentException: input == null!
-java.lang.IllegalArgumentException: input == null!
-Exception in thread "main" java.lang.NullPointerException
-	at Game.gameLoop(Game.java:184)
-	at Game.<init>(Game.java:82)
-	at Game.main(Game.java:316)
