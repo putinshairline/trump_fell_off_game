@@ -206,9 +206,7 @@ public class Game extends Canvas {
 			startB = new GraphicsButton(480, 1010, 100, 50, "sprites/playB.jpg");
 			
 		}
-		catch(IOException e){
-			System.out.println();
-		}
+		catch(IOException e){}
 		
 		while (Gamestate.running) {
 			
@@ -244,7 +242,6 @@ public class Game extends Canvas {
 				
 				//draws all the menu buttons
 				startB.draw(g);
-				startB.draw(g);
 				
 				
 				//starts the game once start button is clicked
@@ -253,6 +250,12 @@ public class Game extends Canvas {
 					Gamestate.state = Gamestate.GAME;
 					mouseClicked = false;
 				}
+				
+				int y = 200;
+				for(Upgrade u : upgrades) {
+					u.draw(g, 0, y, 40, 40);
+					y+=40;
+				}// for upgrades
 				
 			} // MENU = STATE
 
@@ -353,7 +356,7 @@ public class Game extends Canvas {
 					entity.draw(g);
 				} // for
 				
-				// draw all entities
+				// draw all hearts
 				for (int i = 0; i < lifeEntities.size(); i++) {
 					Life life = (Life) lifeEntities.get(i);
 					life.draw(g);
@@ -474,6 +477,12 @@ public class Game extends Canvas {
 					g.drawImage(image, 145, 400, null);
 				} catch (IOException e) {e.printStackTrace();}
 				
+				
+				int y = 200;
+				for(Upgrade u : upgrades) {
+					u.draw(g, 0, y, 40, 40);
+					y+=40;
+				}// for upgrades
 				//check for new actions
 				if(spacePressed) {
 					initEntities();
@@ -501,7 +510,7 @@ public class Game extends Canvas {
 				//force field thing power-up
 				g.drawString("Super Saiyan [a]: 20", 75, 550);
 				try {
-					BufferedImage image = ImageIO.read(new File("bin/sprites/saiyanPlayer.png"));
+					BufferedImage image = ImageIO.read(new File("bin/sprites/saiyan.png"));
 					g.drawImage(image, 95, 565, null);
 				} catch (IOException e) {e.printStackTrace();}
 				
@@ -533,15 +542,14 @@ public class Game extends Canvas {
 							
 							//adds a new "super saiyan upgrade" to upgrades arrayList
 							try {
-								upgrades.add(new Upgrade("s", "cloud.gif") {
+								upgrades.add(new Upgrade("s", "sprites/saiyan.png") {
 										@Override
 										public void upgradeMechanic(Player p) {
 											p.canBeSaiyan = true;
 										}
 									});
-							}catch(IOException e) {
-								System.out.println(e);
-							}
+							}catch(IOException e) {System.out.println(e);}
+							
 							//Player.canBeSaiyan = true;
 							try{Thread.sleep(120);}catch(Exception e) {}	
 					}// if
@@ -558,18 +566,8 @@ public class Game extends Canvas {
 							player.coins -= 5;
 							coinsTemp -= 5;
 							
-							//adds a new "additional life upgrade" to upgrades arrayList
-							try {
-								upgrades.add(new Upgrade("a", "cloud.gif") {
-										@Override
-										public void upgradeMechanic(Player p) {
-											p.addLives++;
-										}
-									});
-							}
-							catch(IOException e) {
-								System.out.println(e);
-							}
+							
+							
 							System.out.println("Additional lives: " + player.addLives);
 							try{Thread.sleep(120);}catch(Exception e) {}
 					}// if
@@ -588,16 +586,15 @@ public class Game extends Canvas {
 							
 							//adds a new "coin doubler upgrade" to upgrades arrayList
 							try {
-								upgrades.add(new Upgrade("d", "cloud.gif") {
+								upgrades.add(new Upgrade("d", "sprites/2XCoins.png") {
 										@Override
 										public void upgradeMechanic(Player p) {
 											p.doubleCoins = true;
 										}
 									});
 							}
-							catch(IOException e) {							
-								System.out.println(e);
-							}
+							catch(IOException e) {System.out.println(e);}
+							
 							try{Thread.sleep(120);}catch(Exception e) {}
 					}// if
 					else {
@@ -606,6 +603,13 @@ public class Game extends Canvas {
 								(600 - g.getFontMetrics().stringWidth("Not enough coins to a coin doubler")) / 2, 700);
 					}// else
 				}// if want to buy SS ([a])
+				
+				//draw upgrades
+				int y = 200;
+				for(Upgrade u : upgrades) {
+					u.draw(g, 0, y, 40, 40);
+					y+=40;
+				}// for upgrades
 				
 			} //elif STORE = STATE
 			else if(Gamestate.state == Gamestate.PAUSE) {
