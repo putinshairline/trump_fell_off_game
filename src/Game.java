@@ -43,10 +43,8 @@ public class Game extends Canvas {
 	private boolean aPressed = false;
 	private boolean bPressed = false;
 	private boolean cPressed = false;
-	private boolean doubleCoins = false;
 	private boolean mouseClicked = true;//true if mouse clicked
 	private Point clickLocation = new Point(-1, -1);//stores the location of the mouse
-	private int addLives = 0; // additional lives for the player (bouht through the upgrades store)
 	private int coinsTemp = 0;
 	private int xPos; // x position for enemy entities
 	private int yPos; // x position for enemy entities
@@ -67,6 +65,10 @@ public class Game extends Canvas {
 	 * Construct our game and set it running.
 	 */
 	public Game() {
+		
+		//make code for text file import here
+		
+		
 		// create a frame to contain game
 		JFrame container = new JFrame("Commodore 64 Space Invaders/changed");
 
@@ -143,8 +145,8 @@ public class Game extends Canvas {
 			coinsTemp = 0;
 		}// if
 		
-		if(addLives > 8) {
-			addLives -= addLives - 8;
+		if(player.addLives > 8) {
+			player.addLives -= player.addLives - 8;
 		}
 		//add lives to player
 		for(int i = 0; i < (3 + player.addLives); i++) {
@@ -378,7 +380,7 @@ public class Game extends Canvas {
 						CoinEntity coin = (CoinEntity) entities.get(i);
 						if(player.collidesWith(coin)) {
 							removeEntities.add(coin);
-							if(doubleCoins)
+							if(player.doubleCoins)
 								player.coins+=2;
 							else
 								player.coins++;
@@ -568,7 +570,7 @@ public class Game extends Canvas {
 							catch(IOException e) {
 								System.out.println(e);
 							}
-							System.out.println("Additional lives: " + addLives);
+							System.out.println("Additional lives: " + player.addLives);
 							try{Thread.sleep(120);}catch(Exception e) {}
 					}// if
 					else {
@@ -599,7 +601,7 @@ public class Game extends Canvas {
 							try{Thread.sleep(120);}catch(Exception e) {}
 					}// if
 					else {
-						doubleCoins = false;
+						player.doubleCoins = false;
 						g.drawString("Not enough coins to purchase a coin doubler", 
 								(600 - g.getFontMetrics().stringWidth("Not enough coins to a coin doubler")) / 2, 700);
 					}// else
