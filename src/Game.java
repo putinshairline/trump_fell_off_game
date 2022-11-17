@@ -11,6 +11,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -31,7 +32,6 @@ import javax.swing.JPanel;
 public class Game extends Canvas {
 
 	private BufferStrategy strategy; // take advantage of accelerated graphics
-	private boolean waitingForKeyPress = true; // true if game held up until a key is pressed
 	private boolean leftPressed = false; // true if left arrow key currently pressed
 	private boolean rightPressed = false; // true if right arrow key currently pressed
 	private boolean spacePressed = false;
@@ -44,6 +44,8 @@ public class Game extends Canvas {
 	private boolean bPressed = false;
 	private boolean cPressed = false;
 	private boolean doubleCoins = false;
+	private boolean mouseClicked = true;//true if mouse clicked
+	private Point clickLocation = new Point(-1, -1);//stores the location of the mouse
 	private int addLives = 0; // additional lives for the player (bouht through the upgrades store)
 	private int coinsTemp = 0;
 	private int xPos; // x position for enemy entities
@@ -56,7 +58,8 @@ public class Game extends Canvas {
 	private ArrayList<Entity> entities = new ArrayList<>(); // list of entities in game
 	private ArrayList<Entity> removeEntities = new ArrayList<>(); // list of entities to remove this loop
 	private ArrayList<Life> lifeEntities = new ArrayList<>(); // list of entities in game
-	private Entity player; // the player
+	private ArrayList<Upgrade> upgrades = new ArrayList<>();
+	private Player player; // the player
 	private double moveSpeed = 600; // hor. vel. of ship (px/s)
 	private String message = ""; // message to display while waiting
 
@@ -125,6 +128,13 @@ public class Game extends Canvas {
 		
 		//add player
 		player = new Player(this, "sprites/playerR.gif", 260, 100, 40, 20);
+		
+		//Applies all the upgrades to the player
+		for(Upgrade u: upgrades) {
+			u.upgradeMechanic(player);
+		}
+		
+		
 		entities.add(player);
 		
 		//add and reset the temporary coins
@@ -137,7 +147,7 @@ public class Game extends Canvas {
 			addLives -= addLives - 8;
 		}
 		//add lives to player
-		for(int i = 0; i < (3 + addLives); i++) {
+		for(int i = 0; i < (3 + player.addLives); i++) {
 			System.out.println("INIT_HEARTS_" + i);
 			lifeEntities.add(new Life(this, "sprites/heart.gif", hx, 1, 40, 40));
 			hx += 40;
@@ -185,7 +195,22 @@ public class Game extends Canvas {
 		int framesInCurrentSecond = 0;
 		int timer = 0;
 		
+		//storage of all of the buttons
+		GraphicsButton startB = null;
+		
+		
+		//Initialization of all the buttons
+		try {
+			startB = new GraphicsButton(480, 1010, 100, 50, "sprites/playB.jpg");
+			
+		}
+		catch(IOException e){
+			System.out.println();
+		}
+		
 		while (Gamestate.running) {
+			
+			
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 			long delta = (long) ((System.currentTimeMillis() - lastLoopTime) * gameSpeed);
 			lastLoopTime = System.currentTimeMillis();
@@ -215,15 +240,17 @@ public class Game extends Canvas {
 				g.drawString("MENU", (600 - g.getFontMetrics().stringWidth("MENU")) / 2, 300);
 				g.drawString("Press [up] to pause game", (600 - g.getFontMetrics().stringWidth("Press [up] to pause game")) / 2, 500);
 				
-				if(sPressed) {
-					Gamestate.state = Gamestate.STORE;
-				} // if store
-				else if (!waitingForKeyPress) {
-					System.out.println("starting");
+				//draws all the menu buttons
+				startB.draw(g);
+				startB.draw(g);
+				
+				
+				//starts the game once start button is clicked
+				if(mouseClicked & startB.contains(clickLocation)) {
 					initEntities();
 					Gamestate.state = Gamestate.GAME;
-					
-				} // if
+					mouseClicked = false;
+				}
 				
 			} // MENU = STATE
 
@@ -307,15 +334,15 @@ public class Game extends Canvas {
 				} // for
 				
 				// deals with super saiyan timing logic
-				if(Player.canBeSaiyan && sPressed) {
-					Player.saiyan = true;
+				if(player.canBeSaiyan && sPressed) {
+					player.saiyan = true;
 				}// if
-				if(Player.saiyan) {
+				if(player.saiyan) {
 					isSaiyan += delta;
 				}// if
 				if(isSaiyan > 3500) {
 					isSaiyan = 0;
-					Player.saiyan = false;
+					player.saiyan = false;
 				}//if 
 				
 				// draw all entities
@@ -333,7 +360,7 @@ public class Game extends Canvas {
 				//display coin info
 				g.setColor(Color.WHITE);
 				g.setFont(new Font("SansSerif", Font.BOLD, 12));
-				if(doubleCoins) {
+				if(player.doubleCoins) {
 					g.drawString("2X " + player.coins, 440, 30);
 				}
 				g.drawString("Coins collected: " + player.coins, 480, 30);
@@ -363,7 +390,7 @@ public class Game extends Canvas {
 
 						BirdEntity enemy = (BirdEntity) entities.get(i);
 						if (player.collidesWith(enemy)) {
-							if(!Player.saiyan) {
+							if(!player.saiyan) {
 								removeEntities.add(enemy);
 								lifeEntities.remove(lifeEntities.size()-1);
 								System.out.println(lifeEntities.size() + " lives left");
@@ -452,7 +479,6 @@ public class Game extends Canvas {
 				}// if space
 				else if(mPressed) {
 					Gamestate.state = Gamestate.MENU;
-					waitingForKeyPress = true;
 				} //elif menu
 				else if(sPressed) {
 					Gamestate.state = Gamestate.STORE;
@@ -465,6 +491,7 @@ public class Game extends Canvas {
 				
 				updateCoins(g);
 			
+				
 				//draw menu message
 				g.drawString("STORE", (600 - g.getFontMetrics().stringWidth("STORE")) / 2, 300);
 				g.drawString("Press [m] to return to menu", (600 - g.getFontMetrics().stringWidth("Press [m] to return to menu")) / 2, 900);
@@ -494,7 +521,6 @@ public class Game extends Canvas {
 				//check for new actions
 				if(mPressed) {
 					Gamestate.state = Gamestate.MENU;
-					waitingForKeyPress = true;
 				}// if [m]
 				if(aPressed) {
 					if(player.coins >= 2) {
@@ -502,11 +528,23 @@ public class Game extends Canvas {
 									(600 - g.getFontMetrics().stringWidth("Succesfully purchased Super Saiyan!")) / 2, 700);
 							player.coins -= 2;
 							coinsTemp -= 2;
-							Player.canBeSaiyan = true;
+							
+							//adds a new "super saiyan upgrade" to upgrades arrayList
+							try {
+								upgrades.add(new Upgrade("s", "cloud.gif") {
+										@Override
+										public void upgradeMechanic(Player p) {
+											p.canBeSaiyan = true;
+										}
+									});
+							}catch(IOException e) {
+								System.out.println(e);
+							}
+							//Player.canBeSaiyan = true;
 							try{Thread.sleep(120);}catch(Exception e) {}	
 					}// if
 					else {
-						Player.canBeSaiyan = false;
+						//Player.canBeSaiyan = false;
 						g.drawString("Not enough coins to purchase Super Saiyan", 
 								(600 - g.getFontMetrics().stringWidth("Not enough coins to purchase Super Saiyan")) / 2, 700);
 					}// else
@@ -517,12 +555,24 @@ public class Game extends Canvas {
 									(600 - g.getFontMetrics().stringWidth("Succesfully purchased another life!")) / 2, 700);
 							player.coins -= 5;
 							coinsTemp -= 5;
-							addLives++;
+							
+							//adds a new "additional life upgrade" to upgrades arrayList
+							try {
+								upgrades.add(new Upgrade("a", "cloud.gif") {
+										@Override
+										public void upgradeMechanic(Player p) {
+											p.addLives++;
+										}
+									});
+							}
+							catch(IOException e) {
+								System.out.println(e);
+							}
 							System.out.println("Additional lives: " + addLives);
 							try{Thread.sleep(120);}catch(Exception e) {}
 					}// if
 					else {
-						Player.canBeSaiyan = false;
+						//Player.canBeSaiyan = false;
 						g.drawString("Not enough coins to purchase another life", 
 								(600 - g.getFontMetrics().stringWidth("Not enough coins to purchase another life")) / 2, 700);
 					}// else
@@ -533,7 +583,19 @@ public class Game extends Canvas {
 									(600 - g.getFontMetrics().stringWidth("Succesfully purchased a coin Doubler")) / 2, 700);
 							player.coins -= 4;
 							coinsTemp -= 4;
-							doubleCoins = true;
+							
+							//adds a new "coin doubler upgrade" to upgrades arrayList
+							try {
+								upgrades.add(new Upgrade("d", "cloud.gif") {
+										@Override
+										public void upgradeMechanic(Player p) {
+											p.doubleCoins = true;
+										}
+									});
+							}
+							catch(IOException e) {							
+								System.out.println(e);
+							}
 							try{Thread.sleep(120);}catch(Exception e) {}
 					}// if
 					else {
@@ -542,6 +604,7 @@ public class Game extends Canvas {
 								(600 - g.getFontMetrics().stringWidth("Not enough coins to a coin doubler")) / 2, 700);
 					}// else
 				}// if want to buy SS ([a])
+				
 			} //elif STORE = STATE
 			else if(Gamestate.state == Gamestate.PAUSE) {
 				panel.paintComponents(g); // resets the panel to be blank
@@ -614,11 +677,6 @@ public class Game extends Canvas {
 		 */
 		public void keyPressed(KeyEvent e) {
 
-			// if waiting for keypress to start game, do nothing
-			if (waitingForKeyPress) {
-				return;
-			} // if
-
 			// respond to move left, right or fire or up
 			if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 				leftPressed = true;
@@ -667,10 +725,6 @@ public class Game extends Canvas {
 		} // keyPressed
 
 		public void keyReleased(KeyEvent e) {
-			// if waiting for keypress to start game, do nothing
-			if (waitingForKeyPress) {
-				return;
-			} // if
 
 			// respond to move left, right or fire
 			if (e.getKeyCode() == KeyEvent.VK_LEFT) {
@@ -715,18 +769,7 @@ public class Game extends Canvas {
 		} // keyReleased
 
 		public void keyTyped(KeyEvent e) {
-
-			// if waiting for key press to start game
-			if (waitingForKeyPress) {
-				if (pressCount == 1) {
-					waitingForKeyPress = false;
-					startGame();
-					pressCount = 0;
-				} else {
-					pressCount++;
-				} // else
-			} // if waitingForKeyPress
-
+			
 			// if escape is pressed, end game
 			if (e.getKeyChar() == 27) {
 				System.exit(0);
@@ -738,16 +781,16 @@ public class Game extends Canvas {
 		
 	private class MouseButtonRecogn extends MouseAdapter {
 		 
-		  @Override
-		  public void mouseClicked(MouseEvent event) {
+		
+		//gets the location of the mouse on click
+		@Override
+		public void mouseClicked(MouseEvent event) {
 		 
-		    if ((event.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
-		 
-		    	System.out.println("Left click detected" + (event.getPoint()));
-		    }
-		 
-		  }
+		    mouseClicked = true;
+		    clickLocation = event.getPoint();
+		   
 		}
+	}
 	
 	/**
 	 * Main Program
