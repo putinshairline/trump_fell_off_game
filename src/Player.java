@@ -1,7 +1,9 @@
 
 public class Player extends Entity{
-	public static boolean saiyan = false;
-	public static boolean canBeSaiyan = false;
+	public boolean saiyan;
+	public boolean canBeSaiyan;
+	public boolean doubleCoins;
+	public int addLives;
 	private Game game;
 	public Player(Game g, String r, int newX, int newY, int newH , int newW) {
 		super(r, newX, newY, newH, newW);
