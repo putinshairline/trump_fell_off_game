@@ -4,14 +4,29 @@
  *
  */
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 public class Game extends Canvas {
 
@@ -118,7 +133,9 @@ public class Game extends Canvas {
 			coinsTemp = 0;
 		}// if
 		
-		
+		if(addLives > 8) {
+			addLives -= addLives - 8;
+		}
 		//add lives to player
 		for(int i = 0; i < (3 + addLives); i++) {
 			System.out.println("INIT_HEARTS_" + i);
@@ -264,10 +281,22 @@ public class Game extends Canvas {
 				for (int i = 0; i < entities.size(); i++) {
 					Entity entity = (Entity) entities.get(i);
 					if (entity instanceof BirdEntity || entity instanceof CloudEntity || entity instanceof CoinEntity && downPressed) {
-						entity.setVerticalMovement(-800);
+						// if cloud set speed different to bird for 3d effect
+						if(entity instanceof CloudEntity) {
+							entity.setVerticalMovement(-700 + (double)(Math.random() * 50) + 1);
+						}// if
+						else {
+							entity.setVerticalMovement(-800 + (double)(Math.random() * 50) + 1);
+						}// else
 					} else if (entity instanceof BirdEntity || entity instanceof CloudEntity || entity instanceof CoinEntity && !downPressed) {
-						entity.setVerticalMovement(-600);
-					} // else if
+						// if cloud set speed different to bird for 3d effect
+						if(entity instanceof CloudEntity) {
+							entity.setVerticalMovement(-500 + (double)(Math.random() * 50) + 1);
+						}// if
+						else {
+							entity.setVerticalMovement(-600 + (double)(Math.random() * 50) + 1);
+						}// else
+					} // else if downPressed
 
 					// remove entities that pass the upper screen limit
 					if (entity.y < 0) {
@@ -474,7 +503,7 @@ public class Game extends Canvas {
 							player.coins -= 2;
 							coinsTemp -= 2;
 							Player.canBeSaiyan = true;
-							Gamestate.state = Gamestate.MENU;
+							try{Thread.sleep(120);}catch(Exception e) {}	
 					}// if
 					else {
 						Player.canBeSaiyan = false;
@@ -490,7 +519,7 @@ public class Game extends Canvas {
 							coinsTemp -= 5;
 							addLives++;
 							System.out.println("Additional lives: " + addLives);
-							Gamestate.state = Gamestate.MENU;
+							try{Thread.sleep(120);}catch(Exception e) {}
 					}// if
 					else {
 						Player.canBeSaiyan = false;
@@ -505,7 +534,7 @@ public class Game extends Canvas {
 							player.coins -= 4;
 							coinsTemp -= 4;
 							doubleCoins = true;
-							Gamestate.state = Gamestate.MENU;
+							try{Thread.sleep(120);}catch(Exception e) {}
 					}// if
 					else {
 						doubleCoins = false;
