@@ -548,10 +548,7 @@ public class Game extends Canvas {
 											p.canBeSaiyan = true;
 										}
 									});
-							}catch(IOException e) {System.out.println(e);}
-							
-							//Player.canBeSaiyan = true;
-							try{Thread.sleep(120);}catch(Exception e) {}	
+							}catch(IOException e) {System.out.println(e);}	
 					}// if
 					else {
 						//Player.canBeSaiyan = false;
@@ -565,11 +562,15 @@ public class Game extends Canvas {
 									(600 - g.getFontMetrics().stringWidth("Succesfully purchased another life!")) / 2, 700);
 							player.coins -= 5;
 							coinsTemp -= 5;
-							
-							
-							
+							try {
+								upgrades.add(new Upgrade("s", "sprites/heart.gif") {
+										@Override
+										public void upgradeMechanic(Player p) {
+											p.addLives++;
+										}
+									});
+							}catch(IOException e) {System.out.println(e);}	
 							System.out.println("Additional lives: " + player.addLives);
-							try{Thread.sleep(120);}catch(Exception e) {}
 					}// if
 					else {
 						//Player.canBeSaiyan = false;
@@ -595,7 +596,7 @@ public class Game extends Canvas {
 							}
 							catch(IOException e) {System.out.println(e);}
 							
-							try{Thread.sleep(120);}catch(Exception e) {}
+							
 					}// if
 					else {
 						player.doubleCoins = false;
@@ -603,6 +604,7 @@ public class Game extends Canvas {
 								(600 - g.getFontMetrics().stringWidth("Not enough coins to a coin doubler")) / 2, 700);
 					}// else
 				}// if want to buy SS ([a])
+				try{Thread.sleep(120);}catch(Exception e) {}
 				
 				//draw upgrades
 				int y = 200;
