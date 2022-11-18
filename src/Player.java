@@ -19,19 +19,19 @@ public class Player extends Entity{
 	public void move(long delta) {
 		if(dx < 0) {
 			if(saiyan) {
-				super.sprite = (SpriteStore.get()).getSprite("sprites/playerLS.gif");
+				super.sprite = (SpriteStore.get()).getSprite("sprites/playerLS.png");
 			} //if
 			else {
-				super.sprite = (SpriteStore.get()).getSprite("sprites/playerL.gif");
+				super.sprite = (SpriteStore.get()).getSprite("sprites/playerL.png");
 			}// else
 		}// if
 		
 		if(dx > 0) {
 			if(saiyan) {
-				super.sprite = (SpriteStore.get()).getSprite("sprites/playerRS.gif");
+				super.sprite = (SpriteStore.get()).getSprite("sprites/playerRS.png");
 			} //if
 			else {
-				super.sprite = (SpriteStore.get()).getSprite("sprites/playerR.gif");
+				super.sprite = (SpriteStore.get()).getSprite("sprites/playerR.png");
 			}//else
 		} // if
 		// stop at left side of screenF

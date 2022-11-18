@@ -129,7 +129,7 @@ public class Game extends Canvas {
 		int hx = 0; // x pos for hearts, var so it can be incremented
 		
 		//add player
-		player = new Player(this, "sprites/playerR.gif", 260, 100, 40, 20);
+		player = new Player(this, "sprites/playerR.png", 260, 100, 40, 20);
 		
 		//Applies all the upgrades to the player
 		for(Upgrade u: upgrades) {
@@ -196,7 +196,7 @@ public class Game extends Canvas {
 		int frameInLastSecond = 0;
 		int framesInCurrentSecond = 0;
 		int timer = 0;
-		
+		int distance = 0;
 		//storage of all of the buttons
 		GraphicsButton startB = null;
 		
@@ -261,7 +261,7 @@ public class Game extends Canvas {
 
 			// GAME = STATE
 			else if (Gamestate.state == Gamestate.GAME) {
-				//logic timers
+				distance += Math.round((delta/2.3453450) / 10);
 				lastBird += delta;
 				cloudTime += delta;
 				
