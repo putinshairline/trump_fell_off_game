@@ -199,11 +199,23 @@ public class Game extends Canvas {
 		int distance = 0;
 		//storage of all of the buttons
 		GraphicsButton startB = null;
+		GraphicsButton storeB = null;
+		GraphicsButton quitB = null;
+		GraphicsButton superSaiyanBuyB = null;
+		GraphicsButton heartBuyB = null;
+		GraphicsButton doubleCoinBuyB = null;
+		GraphicsButton menuB = null;
 		
 		
 		//Initialization of all the buttons
 		try {
-			startB = new GraphicsButton(480, 1010, 100, 50, "sprites/playB.jpg");
+			startB = new GraphicsButton(450, 970, 100, 100, "sprites/playB.jpg");
+			storeB = new GraphicsButton(450, 860, 100, 100, "sprites/storeB.jpg");
+			quitB = new GraphicsButton(530, 20, 50, 50, "sprites/quitB.jpg");
+			superSaiyanBuyB = new GraphicsButton(100, 650, 50, 50, "sprites/buyB.jpg");
+			doubleCoinBuyB = new GraphicsButton(280, 650, 50, 50, "sprites/buyB.jpg");
+			heartBuyB = new GraphicsButton(430, 650, 50, 50, "sprites/buyB.jpg");
+			menuB = new GraphicsButton(450, 970, 100, 100, "sprites/menuB.jpg");
 			
 		}
 		catch(IOException e){}
@@ -242,6 +254,8 @@ public class Game extends Canvas {
 				
 				//draws all the menu buttons
 				startB.draw(g);
+				storeB.draw(g);
+				quitB.draw(g);
 				
 				
 				//starts the game once start button is clicked
@@ -249,6 +263,16 @@ public class Game extends Canvas {
 					initEntities();
 					Gamestate.state = Gamestate.GAME;
 					mouseClicked = false;
+				}
+				
+				if(mouseClicked & storeB.contains(clickLocation)) {
+					initEntities();
+					Gamestate.state = Gamestate.STORE;
+					mouseClicked = false;
+				}
+				
+				if(mouseClicked & quitB.contains(clickLocation)) {
+					System.exit(0);
 				}
 				
 				int y = 200;
@@ -460,6 +484,13 @@ public class Game extends Canvas {
 			} // else if GAME = STATE
 			else if (Gamestate.state == Gamestate.DEATH) {
 				
+				menuB.draw(g);
+				
+				if(mouseClicked && menuB.contains(clickLocation)) {
+					Gamestate.state = Gamestate.MENU;
+					mouseClicked = false;
+				}
+				
 				message = "Press [esc] to quit";
 				panel.paintComponents(g); // resets the panel to be blank
 				this.setBackground(Color.DARK_GRAY);
@@ -483,6 +514,13 @@ public class Game extends Canvas {
 					u.draw(g, 0, y, 40, 40);
 					y+=40;
 				}// for upgrades
+				
+				quitB.draw(g);
+				
+				if(mouseClicked & quitB.contains(clickLocation)) {
+					System.exit(0);
+				}
+				
 				//check for new actions
 				if(spacePressed) {
 					initEntities();
@@ -502,6 +540,11 @@ public class Game extends Canvas {
 				
 				updateCoins(g);
 			
+				superSaiyanBuyB.draw(g);
+				heartBuyB.draw(g);
+				doubleCoinBuyB.draw(g);
+				
+				
 				
 				//draw menu message
 				g.drawString("STORE", (600 - g.getFontMetrics().stringWidth("STORE")) / 2, 300);
@@ -533,7 +576,8 @@ public class Game extends Canvas {
 				if(mPressed) {
 					Gamestate.state = Gamestate.MENU;
 				}// if [m]
-				if(aPressed) {
+				if(mouseClicked && superSaiyanBuyB.contains(clickLocation)) {
+					System.out.println("ss");
 					if(player.coins >= 2) {
 							g.drawString("Succesfully purchased Super Saiyan!", 
 									(600 - g.getFontMetrics().stringWidth("Succesfully purchased Super Saiyan!")) / 2, 700);
@@ -549,21 +593,26 @@ public class Game extends Canvas {
 										}
 									});
 							}catch(IOException e) {System.out.println(e);}	
+							
+							;
 					}// if
 					else {
 						//Player.canBeSaiyan = false;
 						g.drawString("Not enough coins to purchase Super Saiyan", 
 								(600 - g.getFontMetrics().stringWidth("Not enough coins to purchase Super Saiyan")) / 2, 700);
 					}// else
+					
+					mouseClicked = false;
 				}// if want to buy SS ([a])
-				if(cPressed) {
+				if(mouseClicked && heartBuyB.contains(clickLocation)) {
+					System.out.println("h");
 					if(player.coins >= 5) {
 							g.drawString("Succesfully purchased another life!", 
 									(600 - g.getFontMetrics().stringWidth("Succesfully purchased another life!")) / 2, 700);
 							player.coins -= 5;
 							coinsTemp -= 5;
 							try {
-								upgrades.add(new Upgrade("s", "sprites/heart.gif") {
+								upgrades.add(new Upgrade("h", "sprites/heart.gif") {
 										@Override
 										public void upgradeMechanic(Player p) {
 											p.addLives++;
@@ -571,14 +620,20 @@ public class Game extends Canvas {
 									});
 							}catch(IOException e) {System.out.println(e);}	
 							System.out.println("Additional lives: " + player.addLives);
+							
+							
+							
 					}// if
 					else {
 						//Player.canBeSaiyan = false;
 						g.drawString("Not enough coins to purchase another life", 
 								(600 - g.getFontMetrics().stringWidth("Not enough coins to purchase another life")) / 2, 700);
 					}// else
+					
+					mouseClicked = false;
 				}// if want to buy new life ([c])
-				if(bPressed) {
+				if(mouseClicked && doubleCoinBuyB.contains(clickLocation)) {
+					System.out.println("dc");
 					if(player.coins >= 4) {
 							g.drawString("Succesfully purchased a coin Doubler", 
 									(600 - g.getFontMetrics().stringWidth("Succesfully purchased a coin Doubler")) / 2, 700);
@@ -603,6 +658,8 @@ public class Game extends Canvas {
 						g.drawString("Not enough coins to purchase a coin doubler", 
 								(600 - g.getFontMetrics().stringWidth("Not enough coins to a coin doubler")) / 2, 700);
 					}// else
+					
+					mouseClicked = false;
 				}// if want to buy SS ([a])
 				try{Thread.sleep(120);}catch(Exception e) {}
 				
