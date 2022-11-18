@@ -28,7 +28,7 @@ public class Background {
  
         // try to open the background image file 
         try {
-        	image = ImageIO.read(getClass().getClassLoader().getResource("background.gif"));
+        	image = ImageIO.read(getClass().getClassLoader().getResource("background.jpg"));
         	draw(image.getGraphics());
         }
         catch (Exception e) { System.out.println(e); }

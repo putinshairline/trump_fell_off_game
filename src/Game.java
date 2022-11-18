@@ -209,8 +209,8 @@ public class Game extends Canvas {
 		
 		//Initialization of all the buttons
 		try {
-			startB = new GraphicsButton(450, 970, 100, 100, "sprites/playB.jpg");
-			storeB = new GraphicsButton(450, 860, 100, 100, "sprites/storeB.jpg");
+			startB = new GraphicsButton(450, 910, 100, 100, "sprites/playB.jpg");
+			storeB = new GraphicsButton(450, 800, 100, 100, "sprites/storeB.jpg");
 			quitB = new GraphicsButton(530, 20, 50, 50, "sprites/quitB.jpg");
 			superSaiyanBuyB = new GraphicsButton(100, 650, 50, 50, "sprites/buyB.jpg");
 			doubleCoinBuyB = new GraphicsButton(280, 650, 50, 50, "sprites/buyB.jpg");
@@ -249,8 +249,8 @@ public class Game extends Canvas {
 				panel.paintComponents(g); // resets the panel to be blank
 				try {
 					BufferedImage image = ImageIO.read(new File("bin/menuBacker.jpg"));
-					g.drawImage(image, -245, 0, null);
-				} catch (IOException e) {e.printStackTrace();}
+					g.drawImage(image, 0, 0, null);
+				} catch (IOException e) {e.printStackTrace();} 	
 				g.setColor(Color.WHITE);
 				g.drawString("MENU", (600 - g.getFontMetrics().stringWidth("MENU")) / 2, 300);
 				g.drawString("Press [up] to pause game", (600 - g.getFontMetrics().stringWidth("Press [up] to pause game")) / 2, 500);
@@ -496,7 +496,10 @@ public class Game extends Canvas {
 				
 				message = "Press [esc] to quit";
 				panel.paintComponents(g); // resets the panel to be blank
-				this.setBackground(Color.DARK_GRAY);
+				try {
+					BufferedImage image = ImageIO.read(new File("bin/menuBacker.jpg"));
+					g.drawImage(image, 0, 0, null);
+				} catch (IOException e) {e.printStackTrace();} 
 				g.setColor(Color.BLACK);
 				g.drawString("Coins collected: " + player.coins, (600 - g.getFontMetrics().stringWidth("Coins collected: " + player.coins)) / 2, 100);
 				g.drawString("YOU DIED", (600 - g.getFontMetrics().stringWidth("YOU DIED")) / 2, 300);
@@ -539,15 +542,16 @@ public class Game extends Canvas {
 			} // DEATH = STATE
 			else if (Gamestate.state == Gamestate.STORE) {
 				panel.paintComponents(g); // resets the panel to be blank
-				this.setBackground(Color.darkGray);
+				try {
+					BufferedImage image = ImageIO.read(new File("bin/menuBacker.jpg"));
+					g.drawImage(image, 0, 0, null);
+				} catch (IOException e) {e.printStackTrace();}
 				
 				updateCoins(g);
 			
 				superSaiyanBuyB.draw(g);
 				heartBuyB.draw(g);
 				doubleCoinBuyB.draw(g);
-				
-				
 				
 				//draw menu message
 				g.drawString("STORE", (600 - g.getFontMetrics().stringWidth("STORE")) / 2, 300);
@@ -676,7 +680,10 @@ public class Game extends Canvas {
 			} //elif STORE = STATE
 			else if(Gamestate.state == Gamestate.PAUSE) {
 				panel.paintComponents(g); // resets the panel to be blank
-				this.setBackground(Color.DARK_GRAY);
+				try {
+					BufferedImage image = ImageIO.read(new File("bin/menuBacker.jpg"));
+					g.drawImage(image, 0, 0, null);
+				} catch (IOException e) {e.printStackTrace();} 	
 				g.setColor(Color.BLACK);
 				g.drawString("GAME IS PAUSED", (600 - g.getFontMetrics().stringWidth("GAME IS PAUSED")) / 2, 300);
 				g.drawString("Press [up] to unpause", (600 - g.getFontMetrics().stringWidth("Press [up] to unpause")) / 2, 500);
