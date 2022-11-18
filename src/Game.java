@@ -247,8 +247,11 @@ public class Game extends Canvas {
 			// MENU = STATE
 			if (Gamestate.state == Gamestate.MENU) {
 				panel.paintComponents(g); // resets the panel to be blank
-				this.setBackground(Color.DARK_GRAY);
-				g.setColor(Color.BLACK);
+				try {
+					BufferedImage image = ImageIO.read(new File("bin/menuBacker.jpg"));
+					g.drawImage(image, -245, 0, null);
+				} catch (IOException e) {e.printStackTrace();}
+				g.setColor(Color.WHITE);
 				g.drawString("MENU", (600 - g.getFontMetrics().stringWidth("MENU")) / 2, 300);
 				g.drawString("Press [up] to pause game", (600 - g.getFontMetrics().stringWidth("Press [up] to pause game")) / 2, 500);
 				
@@ -385,6 +388,7 @@ public class Game extends Canvas {
 					Life life = (Life) lifeEntities.get(i);
 					life.draw(g);
 				} // for
+				g.drawString("Distance travelled: " + distance, 10, 950);
 				
 				//display coin info
 				g.setColor(Color.WHITE);
@@ -480,7 +484,6 @@ public class Game extends Canvas {
 					removeEntities.addAll(entities);
 					Gamestate.state = Gamestate.DEATH;
 				} // if
-
 			} // else if GAME = STATE
 			else if (Gamestate.state == Gamestate.DEATH) {
 				
