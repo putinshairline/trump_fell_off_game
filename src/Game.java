@@ -311,11 +311,11 @@ public class Game extends Canvas {
 				if (lastBird > 1000) {
 					lastBird = 0; // reset counter
 
-					// spawn 6 bird entities if enough time has passed
+					// spawn 6 ghoul entities if enough time has passed
 					for (int i = 0; i < 5; i++) {
 						xPos = (int) ((Math.random() * 110) + 1) * 5; // x position for enemy entities
 						yPos = (int) ((Math.random() * 230) + 194) * 5; // x position for enemy entities
-						Entity bird = new BirdEntity(this, "sprites/ghoul.png", xPos, yPos, 20, 20);
+						Entity bird = new BirdEntity(this, "sprites/ghoul.png", xPos, yPos, 30, 30);
 						entities.add(bird);
 					} // for
 
@@ -331,7 +331,7 @@ public class Game extends Canvas {
 					for (int i = 0; i < 4; i++) {
 						xPos = (int) ((Math.random() * 110) + 1) * 5; // x position for enemy entities
 						yPos = (int) ((Math.random() * 230) + 194) * 5; // x position for enemy entities
-						Entity coin = new CoinEntity(this, "sprites/coin.png", xPos, yPos,  30, 30);
+						Entity coin = new CoinEntity(this, "sprites/shrine.png", xPos, yPos,  16, 40);
 						entities.add(coin);
 					} // for
 				} // if
@@ -388,18 +388,18 @@ public class Game extends Canvas {
 					Life life = (Life) lifeEntities.get(i);
 					life.draw(g);
 				} // for
+				g.setColor(Color.WHITE);
 				g.drawString("Distance travelled: " + distance, 10, 950);
 				
 				//display coin info
-				g.setColor(Color.WHITE);
 				g.setFont(new Font("SansSerif", Font.BOLD, 12));
 				if(player.doubleCoins) {
-					g.drawString("2X " + player.coins, 440, 30);
+					g.drawString("2X " + player.coins, 420, 30);
 				}
 				g.drawString("Coins collected: " + player.coins, 480, 30);
 				Image img = null;
 				try {
-					img = ImageIO.read(getClass().getClassLoader().getResource("sprites/coin.png"));
+					img = ImageIO.read(getClass().getClassLoader().getResource("sprites/shrine.png"));
 				} catch (IOException e) {e.printStackTrace();}
 				g.drawImage(img, 450, 10, null);
 
@@ -703,10 +703,10 @@ public class Game extends Canvas {
 		//display coins
 		g.setColor(Color.BLACK);
 		g.setFont(new Font("SansSerif", Font.BOLD, 12));
-		g.drawString("Coins : " + player.coins, 490, 30);
+		g.drawString("Coins : " + player.coins, 490, 40);
 		Image img = null;
 		try {
-			img = ImageIO.read(getClass().getClassLoader().getResource("sprites/coin.png"));
+			img = ImageIO.read(getClass().getClassLoader().getResource("sprites/shrine.png"));
 			g.drawImage(img, 450, 10, null);
 		} catch (IOException e) {e.printStackTrace();}
 	}// coin update
