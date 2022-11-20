@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -128,17 +129,23 @@ public class Game extends Canvas {
 	private void initEntities() {
 		int hx = 0; // x pos for hearts, var so it can be incremented
 		
+		//removes previous player if it exists
+		if(!Objects.isNull(player)) {
+			entities.remove(entities.indexOf(player));
+		}
+		
 		//add player
 		player = new Player(this, "sprites/playerR.png", 260, 100, 40, 20);
 		
+			
 		//Applies all the upgrades to the player
 		for(Upgrade u: upgrades) {
 			u.upgradeMechanic(player);
 		}
 		
 		
-		entities.add(player);
 		
+		entities.add(player);
 		//add and reset the temporary coins
 		if(coinsTemp != 0) {
 			player.coins += coinsTemp;
@@ -199,34 +206,41 @@ public class Game extends Canvas {
 		int distance = 0;
 		//storage of all of the buttons
 		GraphicsButton startB = null;
-		GraphicsButton storeB = null;
+		GraphicsButton storeMenuB = null;
 		GraphicsButton quitB = null;
 		GraphicsButton superSaiyanBuyB = null;
 		GraphicsButton heartBuyB = null;
 		GraphicsButton doubleCoinBuyB = null;
 		GraphicsButton menuB = null;
+		GraphicsButton storeDeathB = null;
+		GraphicsButton restartB = null;
+		GraphicsButton menuStoreB = null;
+		
 		
 		
 		//Initialization of all the buttons
 		try {
 			startB = new GraphicsButton(450, 910, 100, 100, "sprites/playB.jpg");
-			storeB = new GraphicsButton(450, 800, 100, 100, "sprites/storeB.jpg");
+			storeMenuB = new GraphicsButton(450, 800, 100, 100, "sprites/storeB.jpg");
 			quitB = new GraphicsButton(530, 20, 50, 50, "sprites/quitB.jpg");
 			superSaiyanBuyB = new GraphicsButton(100, 650, 50, 50, "sprites/buyB.jpg");
-			doubleCoinBuyB = new GraphicsButton(280, 650, 50, 50, "sprites/buyB.jpg");
+			doubleCoinBuyB = new GraphicsButton(275, 650, 50, 50, "sprites/buyB.jpg");
 			heartBuyB = new GraphicsButton(430, 650, 50, 50, "sprites/buyB.jpg");
-			menuB = new GraphicsButton(450, 970, 100, 100, "sprites/menuB.jpg");
-			
+			menuB = new GraphicsButton(350, 930, 100, 100, "sprites/menuB.jpg");
+			storeDeathB = new GraphicsButton(250, 930, 100, 100, "sprites/storeB.jpg");
+			restartB = new GraphicsButton(150, 930, 100, 100, "sprites/restartB.jpg");
+			menuStoreB = new GraphicsButton(250, 930, 100, 100, "sprites/menuB.jpg");
 		}
 		catch(IOException e){}
 		
 		while (Gamestate.running) {
 			
-			
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 			long delta = (long) ((System.currentTimeMillis() - lastLoopTime) * gameSpeed);
 			lastLoopTime = System.currentTimeMillis();
 			timer += delta;
+			
+			g.setColor(new Color(12917160));
 			
 			//fps stuff
 			long currentTime = System.currentTimeMillis();
@@ -241,6 +255,7 @@ public class Game extends Canvas {
 			if(timer >= 1000) {
 				timer = 0;
 				System.out.println(frameInLastSecond + " fps");
+				System.out.println(player);
 			}
 			
 			
@@ -251,25 +266,29 @@ public class Game extends Canvas {
 					BufferedImage image = ImageIO.read(new File("bin/menuBacker.jpg"));
 					g.drawImage(image, 0, 0, null);
 				} catch (IOException e) {e.printStackTrace();} 	
-				g.setColor(Color.WHITE);
-				g.drawString("MENU", (600 - g.getFontMetrics().stringWidth("MENU")) / 2, 300);
-				g.drawString("Press [up] to pause game", (600 - g.getFontMetrics().stringWidth("Press [up] to pause game")) / 2, 500);
 				
 				//draws all the menu buttons
 				startB.draw(g);
-				storeB.draw(g);
+				storeMenuB.draw(g);
 				quitB.draw(g);
 				
 				
 				//starts the game once start button is clicked
 				if(mouseClicked & startB.contains(clickLocation)) {
+					
+					
 					initEntities();
+						
+						
 					Gamestate.state = Gamestate.GAME;
 					mouseClicked = false;
 				}
 				
-				if(mouseClicked & storeB.contains(clickLocation)) {
+				if(mouseClicked & storeMenuB.contains(clickLocation)) {
+					
+					
 					initEntities();
+						
 					Gamestate.state = Gamestate.STORE;
 					mouseClicked = false;
 				}
@@ -388,7 +407,7 @@ public class Game extends Canvas {
 					Life life = (Life) lifeEntities.get(i);
 					life.draw(g);
 				} // for
-				g.setColor(Color.WHITE);
+				
 				g.drawString("Distance travelled: " + distance, 10, 950);
 				
 				//display coin info
@@ -487,27 +506,16 @@ public class Game extends Canvas {
 			} // else if GAME = STATE
 			else if (Gamestate.state == Gamestate.DEATH) {
 				
-				menuB.draw(g);
 				
-				if(mouseClicked && menuB.contains(clickLocation)) {
-					Gamestate.state = Gamestate.MENU;
-					mouseClicked = false;
-				}
+				
+				
 				
 				message = "Press [esc] to quit";
 				panel.paintComponents(g); // resets the panel to be blank
 				try {
-					BufferedImage image = ImageIO.read(new File("bin/menuBacker.jpg"));
+					BufferedImage image = ImageIO.read(new File("bin/DeathBackground.gif"));
 					g.drawImage(image, 0, 0, null);
 				} catch (IOException e) {e.printStackTrace();} 
-				g.setColor(Color.BLACK);
-				g.drawString("Coins collected: " + player.coins, (600 - g.getFontMetrics().stringWidth("Coins collected: " + player.coins)) / 2, 100);
-				g.drawString("YOU DIED", (600 - g.getFontMetrics().stringWidth("YOU DIED")) / 2, 300);
-				g.drawString(message, (600 - g.getFontMetrics().stringWidth(message)) / 2, 800);
-				message = "Press [space] to play again";
-				g.drawString(message, (600 - g.getFontMetrics().stringWidth(message)) / 2, 900);
-				message = " Press [m] to access menu";
-				g.drawString(message, (600 - g.getFontMetrics().stringWidth(message)) / 2, 1000);
 				
 				
 				int y = 200;
@@ -516,29 +524,41 @@ public class Game extends Canvas {
 					y+=40;
 				}// for upgrades
 				
+				menuB.draw(g);
 				quitB.draw(g);
+				storeDeathB.draw(g);
+				restartB.draw(g);
+				
+				g.drawString("COINS COLLECTED : " + player.coins , 250, 900);
+				
 				
 				if(mouseClicked & quitB.contains(clickLocation)) {
 					System.exit(0);
 				}
-				
-				//check for new actions
-				if(spacePressed) {
+				else if(mouseClicked && menuB.contains(clickLocation)) {
+					Gamestate.state = Gamestate.MENU;
+					mouseClicked = false;
+				}
+				else if(mouseClicked && storeDeathB.contains(clickLocation)) {
+					Gamestate.state = Gamestate.STORE;
+					mouseClicked = false;
+				}
+				else if(mouseClicked && restartB.contains(clickLocation)) {
+					
 					initEntities();
 					Gamestate.state = Gamestate.GAME;
-				}// if space
-				else if(mPressed) {
-					Gamestate.state = Gamestate.MENU;
-				} //elif menu
-				else if(sPressed) {
-					Gamestate.state = Gamestate.STORE;
-				} // elif store
+					mouseClicked = false;
+				}
+				
+				
 				
 			} // DEATH = STATE
 			else if (Gamestate.state == Gamestate.STORE) {
+				
+				
 				panel.paintComponents(g); // resets the panel to be blank
 				try {
-					BufferedImage image = ImageIO.read(new File("bin/menuBacker.jpg"));
+					BufferedImage image = ImageIO.read(new File("bin/storeBackground.gif"));
 					g.drawImage(image, 0, 0, null);
 				} catch (IOException e) {e.printStackTrace();}
 				
@@ -549,9 +569,8 @@ public class Game extends Canvas {
 				doubleCoinBuyB.draw(g);
 				
 				//draw menu message
-				g.drawString("STORE", (600 - g.getFontMetrics().stringWidth("STORE")) / 2, 300);
-				g.drawString("Press [m] to return to menu", (600 - g.getFontMetrics().stringWidth("Press [m] to return to menu")) / 2, 900);
 				
+			
 				//force field thing power-up
 				g.drawString("Super Saiyan [a]: 20", 75, 550);
 				try {
@@ -574,6 +593,16 @@ public class Game extends Canvas {
 				} catch (IOException e) {e.printStackTrace();}
 				
 				
+				menuStoreB.draw(g);
+
+				
+				if(mouseClicked && menuStoreB.contains(clickLocation)) {
+					Gamestate.state = Gamestate.MENU;
+					mouseClicked = false;
+				}
+				
+				
+				
 				//check for new actions
 				if(mPressed) {
 					Gamestate.state = Gamestate.MENU;
@@ -582,7 +611,7 @@ public class Game extends Canvas {
 					System.out.println("ss");
 					if(player.coins >= 2) {
 							g.drawString("Succesfully purchased Super Saiyan!", 
-									(600 - g.getFontMetrics().stringWidth("Succesfully purchased Super Saiyan!")) / 2, 700);
+									(600 - g.getFontMetrics().stringWidth("Succesfully purchased Super Saiyan!")) / 2, 720);
 							player.coins -= 2;
 							coinsTemp -= 2;
 							
@@ -601,7 +630,7 @@ public class Game extends Canvas {
 					else {
 						//Player.canBeSaiyan = false;
 						g.drawString("Not enough coins to purchase Super Saiyan", 
-								(600 - g.getFontMetrics().stringWidth("Not enough coins to purchase Super Saiyan")) / 2, 700);
+								(600 - g.getFontMetrics().stringWidth("Not enough coins to purchase Super Saiyan")) / 2, 720);
 					}// else
 					
 					mouseClicked = false;
@@ -610,7 +639,7 @@ public class Game extends Canvas {
 					System.out.println("h");
 					if(player.coins >= 5) {
 							g.drawString("Succesfully purchased another life!", 
-									(600 - g.getFontMetrics().stringWidth("Succesfully purchased another life!")) / 2, 700);
+									(600 - g.getFontMetrics().stringWidth("Succesfully purchased another life!")) / 2, 720);
 							player.coins -= 5;
 							coinsTemp -= 5;
 							try {
@@ -629,7 +658,7 @@ public class Game extends Canvas {
 					else {
 						//Player.canBeSaiyan = false;
 						g.drawString("Not enough coins to purchase another life", 
-								(600 - g.getFontMetrics().stringWidth("Not enough coins to purchase another life")) / 2, 700);
+								(600 - g.getFontMetrics().stringWidth("Not enough coins to purchase another life")) / 2, 720);
 					}// else
 					
 					mouseClicked = false;
@@ -638,7 +667,7 @@ public class Game extends Canvas {
 					System.out.println("dc");
 					if(player.coins >= 4) {
 							g.drawString("Succesfully purchased a coin Doubler", 
-									(600 - g.getFontMetrics().stringWidth("Succesfully purchased a coin Doubler")) / 2, 700);
+									(600 - g.getFontMetrics().stringWidth("Succesfully purchased a coin Doubler")) / 2, 720);
 							player.coins -= 4;
 							coinsTemp -= 4;
 							
@@ -658,7 +687,7 @@ public class Game extends Canvas {
 					else {
 						player.doubleCoins = false;
 						g.drawString("Not enough coins to purchase a coin doubler", 
-								(600 - g.getFontMetrics().stringWidth("Not enough coins to a coin doubler")) / 2, 700);
+								(600 - g.getFontMetrics().stringWidth("Not enough coins to a coin doubler")) / 2, 720);
 					}// else
 					
 					mouseClicked = false;
@@ -679,7 +708,7 @@ public class Game extends Canvas {
 					BufferedImage image = ImageIO.read(new File("bin/menuBacker.jpg"));
 					g.drawImage(image, 0, 0, null);
 				} catch (IOException e) {e.printStackTrace();} 	
-				g.setColor(Color.BLACK);
+
 				g.drawString("GAME IS PAUSED", (600 - g.getFontMetrics().stringWidth("GAME IS PAUSED")) / 2, 300);
 				g.drawString("Press [up] to unpause", (600 - g.getFontMetrics().stringWidth("Press [up] to unpause")) / 2, 500);
 				
@@ -701,7 +730,7 @@ public class Game extends Canvas {
 
 	private void updateCoins(Graphics2D g) {
 		//display coins
-		g.setColor(Color.BLACK);
+
 		g.setFont(new Font("SansSerif", Font.BOLD, 12));
 		g.drawString("Coins : " + player.coins, 490, 40);
 		Image img = null;
@@ -715,11 +744,7 @@ public class Game extends Canvas {
 	 * startGame input: none output: none purpose: start a fresh game, clear old
 	 * data
 	 */
-	private void startGame() {
-		// clear out any existing entities and initalize a new set
-		entities.clear();
-		allKeysFalse();
-	} // startGame
+
 
 	public void allKeysFalse() {
 		// blank out any keyboard settings that might exist
