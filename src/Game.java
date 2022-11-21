@@ -507,7 +507,7 @@ public class Game extends Canvas {
 					g.drawString("2X " + player.coins, 420, 30);
 				}//if
 				
-				g.drawString("Coins collected: " + player.coins, 480, 30);
+				g.drawString("Shards collected: " + player.coins, 480, 30);
 				
 				Image img = null;
 				try {
@@ -709,7 +709,7 @@ public class Game extends Canvas {
 				restartB.draw(g);
 				
 				//draws the number of coins the player has
-				g.drawString("COINS COLLECTED : " + player.coins , 250, 900);
+				g.drawString("Shards collected : " + player.coins , 250, 900);
 				
 				//closes the program if the quit button is clicked
 				if(mouseClicked & quitB.contains(clickLocation)) {
@@ -760,21 +760,21 @@ public class Game extends Canvas {
 				doubleCoinBuyB.draw(g);
 			
 				//super saiyan power up display
-				g.drawString("Super Saiyan [a]: 20", 75, 550);
+				g.drawString("Super Saiyan: 20", 75, 550);
 				try {
 					BufferedImage image = ImageIO.read(new File("bin/sprites/saiyan.png"));
 					g.drawImage(image, 95, 565, null);
 				} catch (IOException e) {e.printStackTrace();}
 				
 				//coin doubler power-up display
-				g.drawString("Coin Doubler: 80 [b]", 250, 550);
+				g.drawString("Coin Doubler: 80", 250, 550);
 				try {
 					BufferedImage image = ImageIO.read(new File("bin/sprites/2XCoins.png"));
 					g.drawImage(image, 270, 565, null);
 				} catch (IOException e) {e.printStackTrace();}
 				
 				//+1 life power-up display
-				g.drawString("+1 Life: 30 [c]", 425, 550);
+				g.drawString("+1 Life: 30", 425, 550);
 				try {
 					BufferedImage image = ImageIO.read(new File("bin/sprites/heart.gif"));
 					g.drawImage(image, 435, 565, null);
@@ -926,7 +926,7 @@ public class Game extends Canvas {
 		g.setFont(new Font("SansSerif", Font.BOLD, 12));
 		
 		//draw the string
-		g.drawString("Coins : " + player.coins, 490, 40);
+		g.drawString("Shards : " + player.coins, 490, 40);
 		
 		//draws the coin image
 		Image img = null;
