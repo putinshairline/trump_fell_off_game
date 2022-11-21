@@ -7,12 +7,6 @@ import java.awt.*;
 
 public abstract class Entity {
 
-	// Java Note: the visibility modifier "protected"
-	// allows the variable to be seen by this class,
-	// any classes in the same package, and any subclasses
-	// "private" - this class only
-	// "public" - any class can see it
-
 	protected double x; // current x location
 	protected double y; // current y location
 	protected double h;

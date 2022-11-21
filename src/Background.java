@@ -7,6 +7,7 @@
  */
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import javax.imageio.ImageIO;
 
@@ -45,7 +46,7 @@ public class Background {
         this.y -= backSpeed;
  
         //check to see if the image has gone off stage left
-        if (this.y <= -1 * 1080) {
+        if (this.y <= 1080) {
  
             //if it has, line it back up so that its left edge is lined up to the right side of the other background image
             this.y = this.y + 1080 * 2;

@@ -8,10 +8,7 @@ public class BirdEntity extends Entity {
 	}// BirdEntity
 
 	@Override
-	public void collidedWith(Entity other) {
-		// TODO Auto-generated method stub
-
-	} // collided with
+	public void collidedWith(Entity other) {}
 
 	@Override
 	public void move(long delta) {

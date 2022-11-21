@@ -6,11 +6,9 @@ public class CoinEntity extends Entity {
 		game = g;
 	}// BirdEntity
 
-	@Override
-	public void collidedWith(Entity other) {
-		// TODO Auto-generated method stub
 
-	} // collided with
+	@Override
+	public void collidedWith(Entity other) {}
 
 	@Override
 	public void move(long delta) {

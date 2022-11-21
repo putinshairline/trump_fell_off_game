@@ -8,9 +8,6 @@ public class Life extends Entity {
 	}// Life
 
 	@Override
-	public void collidedWith(Entity other) {
-		// TODO Auto-generated method stub
+	public void collidedWith(Entity other) {}
 
-	}
-
-}
+}//Life
